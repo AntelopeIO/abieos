@@ -95,18 +95,22 @@ if (NOT ABIEOS_ONLY_LIBRARY)
 add_subdirectory(tools)
 endif()
 
+if(ABIEOS_INSTALL_COMPONENT)
+   set(INSTALL_COMPONENT_ARGS COMPONENT ${ABIEOS_INSTALL_COMPONENT} EXCLUDE_FROM_ALL)
+endif()
 
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/eosio DESTINATION include)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/eosio DESTINATION include ${INSTALL_COMPONENT_ARGS})
 
 install(TARGETS abieos
   EXPORT abieos
-	INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-	ARCHIVE  DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} ${INSTALL_COMPONENT_ARGS}
+	ARCHIVE  DESTINATION ${CMAKE_INSTALL_LIBDIR} ${INSTALL_COMPONENT_ARGS}
 )
 
 install(EXPORT abieos
   DESTINATION "share/abieos"
   FILE abieos-targets.cmake
+  ${INSTALL_COMPONENT_ARGS}
 )
 
 export(TARGETS abieos 
@@ -114,4 +118,5 @@ export(TARGETS abieos
 configure_file(abieos-config.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/share/abieos/abieos-config.cmake COPYONLY)
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/share/abieos/abieos-config.cmake
-        DESTINATION "share/abieos")
+        DESTINATION "share/abieos"
+        ${INSTALL_COMPONENT_ARGS})
