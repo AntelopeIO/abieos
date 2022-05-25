@@ -141,8 +141,8 @@ void test_compare() {
    test_key(std::vector<char>{'b'}, std::vector<char>{'a'});
 
    test_key(std::vector<signed char>{}, std::vector<signed char>{'\0'});
-   test_key(std::vector<signed char>{'\0'}, std::vector<signed char>{'\xFF'});
-   test_key(std::vector<signed char>{'\1'}, std::vector<signed char>{'\xFF'});
+   test_key(std::vector<signed char>{'\0'}, std::vector<signed char>{static_cast<signed char>('\xFF')});
+   test_key(std::vector<signed char>{'\1'}, std::vector<signed char>{static_cast<signed char>('\xFF')});
    test_key(std::vector<signed char>{'b'}, std::vector<signed char>{'a'});
 
    test_key(std::vector<unsigned char>{}, std::vector<unsigned char>{'\0'});
