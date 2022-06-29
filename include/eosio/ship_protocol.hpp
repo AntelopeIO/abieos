@@ -638,14 +638,6 @@ namespace eosio { namespace ship_protocol {
 
    EOSIO_REFLECT(global_property_v1, proposed_schedule_block_num, proposed_schedule, configuration, chain_id, wasm_configuration)
 
-   struct kv_database_config {
-      uint32_t max_key_size   = 0; ///< the maximum size in bytes of a key
-      uint32_t max_value_size = 0; ///< the maximum size in bytes of a value
-      uint32_t max_iterators  = 0; ///< the maximum number of iterators that a contract can have simultaneously.
-   };
-
-   EOSIO_REFLECT(kv_database_config, max_key_size, max_value_size, max_iterators)
-
    using global_property = std::variant<global_property_v0, global_property_v1>;
 
    struct generated_transaction_v0 {
