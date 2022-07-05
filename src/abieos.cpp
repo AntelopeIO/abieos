@@ -5,7 +5,11 @@
 
 #include <memory>
 
-inline const bool catch_all = true;
+#ifdef ABIEOS_NOT_CATCH_ALL
+constexpr bool catch_all = false;
+#else
+constexpr bool catch_all = true;
+#endif
 
 using namespace abieos;
 
@@ -36,12 +40,12 @@ auto handle_exceptions(abieos_context* context, T errval, F f) noexcept -> declt
     try {
         return f();
     } catch (std::exception& e) {
-        if (!catch_all)
+        if constexpr (!catch_all)
             throw;
         set_error(context, e.what());
         return errval;
     } catch (...) {
-        if (!catch_all)
+        if constexpr (!catch_all)
             throw;
         set_error(context, "unknown exception");
         return errval;
@@ -52,7 +56,7 @@ extern "C" abieos_context* abieos_create() {
     try {
         return new abieos_context{};
     } catch (...) {
-        if (!catch_all)
+        if constexpr (!catch_all)
             throw;
         return nullptr;
     }
