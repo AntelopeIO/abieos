@@ -1,6 +1,3 @@
-[submodule "external/rapidjson"]
-	path = external/rapidjson
-	url = https://github.com/Tencent/rapidjson.git
 [submodule "external/eosjs_"]
 	path = external/eosjs
 	url = https://github.com/eosnetworkfoundation/mandel-eosjs.git
