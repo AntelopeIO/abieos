@@ -76,13 +76,13 @@ add_test(NAME test_abieos_reflect COMMAND test_abieos_reflect)
 
 # Causes build issues on some platforms
 # add_executable(test_abieos_sanitize src/test.cpp src/abieos.cpp src/abi.cpp src/crypto.cpp include/eosio/fpconv.c)
-# target_include_directories(test_abieos_sanitize PRIVATE include external/outcome/single-header external/rapidjson/include external/date/include)
+# target_include_directories(test_abieos_sanitize PRIVATE include external/outcome/single-header ../../libraries/rapidjson/include external/date/include)
 # target_link_libraries(test_abieos_sanitize abieos -fno-omit-frame-pointer -fsanitize=address,undefined ${CMAKE_THREAD_LIBS_INIT})
 # target_compile_options(test_abieos_sanitize PUBLIC -fno-omit-frame-pointer -fsanitize=address,undefined)
 # add_test(NAME test_abieos_sanitize COMMAND test_abieos_sanitize)
 
 # add_executable(fuzzer src/fuzzer.cpp src/abieos.cpp)
-# target_include_directories(fuzzer PRIVATE external/outcome/single-header external/rapidjson/include external/date/include)
+# target_include_directories(fuzzer PRIVATE external/outcome/single-header ../../libraries/rapidjson/include external/date/include)
 # target_link_libraries(fuzzer -fsanitize=fuzzer,address,undefined,signed-integer-overflow -fstandalone-debug ${CMAKE_THREAD_LIBS_INIT})
 # target_compile_options(fuzzer PRIVATE -fsanitize=fuzzer,address,undefined,signed-integer-overflow -fstandalone-debug)
 
