@@ -227,9 +227,13 @@ int main() {
    test(private_key{std::in_place_index<1>}, abi, new_abi);
    test(signature{std::in_place_index<0>}, abi, new_abi);
    test(signature{std::in_place_index<1>}, abi, new_abi);
-   test(symbol{unsigned('ZYX\x08')}, abi, new_abi);
-   test(symbol_code{unsigned('ZYXW')}, abi, new_abi);
-   test(asset{5, symbol{'ZYX\x08'}}, abi, new_abi);
+   // avoid using multichars to improve portability and clean up warnings
+   auto multichars_to_uint32 = [] ( char const v[5] ) constexpr -> uint32_t {
+      return (v[0] << 24) | (v[1] << 16) | (v[2] << 8) | v[3];
+   };
+   test(symbol{multichars_to_uint32("ZYX\x08")}, abi, new_abi);
+   test(symbol_code{multichars_to_uint32("ZYXW")}, abi, new_abi);
+   test(asset{5, symbol{multichars_to_uint32("ZYX\x08")}}, abi, new_abi);
    test(struct_type{}, abi, new_abi);
    test(struct_type{{1},2,3}, abi, new_abi);
    test(struct_type{{1,2},3,4.0}, abi, new_abi);
