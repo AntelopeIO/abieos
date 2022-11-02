@@ -485,7 +485,12 @@ void from_json(float& result, S& stream) {
    std::string s(sv); // strtof expects a null-terminated string
    errno = 0;
    char* end;
+#if defined(__linux__) && defined(__aarch64__)
+   //work around test failure for float::min/max roundtrip to&from string
+   result = std::strtod(s.c_str(), &end);
+#else
    result = std::strtof(s.c_str(), &end);
+#endif
    check( !errno && end == s.c_str() + s.size(),
          convert_json_error(from_json_error::expected_number) );
 }
