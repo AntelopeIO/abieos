@@ -37,8 +37,8 @@ include(GNUInstallDirs)
 
 add_library(abieos STATIC src/abi.cpp src/crypto.cpp include/eosio/fpconv.c)
 target_include_directories(abieos PUBLIC
-                          "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/include"
-                          "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/external/rapidjson/include"
+                          "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+                          "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/external/rapidjson/include>"
                           "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
 
 if(ABIEOS_NO_INT128)
@@ -47,8 +47,8 @@ endif()
 
 add_library(abieos_module MODULE src/abieos.cpp src/abi.cpp src/crypto.cpp include/eosio/fpconv.c)
 target_include_directories(abieos_module PUBLIC
-                          "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/include;"
-                          "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/external/rapidjson/include"
+                          "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+                          "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/external/rapidjson/include>"
                           "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
 
 target_link_libraries(abieos_module ${CMAKE_THREAD_LIBS_INIT})
@@ -100,6 +100,7 @@ if(ABIEOS_INSTALL_COMPONENT)
 endif()
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/eosio DESTINATION include ${INSTALL_COMPONENT_ARGS})
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/external/rapidjson/include/ DESTINATION include ${INSTALL_COMPONENT_ARGS})
 
 install(TARGETS abieos
   EXPORT abieos
