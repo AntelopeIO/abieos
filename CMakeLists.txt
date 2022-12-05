@@ -109,15 +109,15 @@ install(TARGETS abieos
 )
 
 install(EXPORT abieos
-  DESTINATION "share/abieos"
+  DESTINATION "lib/cmake/abieos"
   FILE abieos-targets.cmake
   ${INSTALL_COMPONENT_ARGS}
 )
 
 export(TARGETS abieos
-       FILE ${CMAKE_CURRENT_BINARY_DIR}/share/abieos/abieos-targets.cmake)
-configure_file(abieos-config.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/share/abieos/abieos-config.cmake COPYONLY)
+       FILE ${CMAKE_CURRENT_BINARY_DIR}/lib/cmake/abieos/abieos-targets.cmake)
+configure_file(abieos-config.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/lib/cmake/abieos/abieos-config.cmake COPYONLY)
 
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/share/abieos/abieos-config.cmake
-        DESTINATION "share/abieos"
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/lib/cmake/abieos/abieos-config.cmake
+        DESTINATION "lib/cmake/abieos"
         ${INSTALL_COMPONENT_ARGS})
