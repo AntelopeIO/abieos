@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 
-extern const char* const example_abi;
+extern const char* const state_history_plugin_abi;
 
 inline const bool generate_corpus = false;
 
@@ -582,7 +582,7 @@ void check_types() {
     auto testKvAbiName = check_context(context, abieos_string_to_name(context, "testkv.abi"));
     check_context(context, abieos_set_abi(context, 0, transactionAbi));
     check_context(context, abieos_set_abi(context, 1, packedTransactionAbi));
-    check_context(context, abieos_set_abi(context, 2, example_abi));
+    check_context(context, abieos_set_abi(context, 2, state_history_plugin_abi));
     check_context(context, abieos_set_abi_hex(context, token, tokenHexAbi));
     check_context(context, abieos_set_abi(context, testAbiName, testAbi));
     check_context(context, abieos_set_abi_hex(context, testHexAbiName, testHexAbi));
@@ -626,7 +626,7 @@ void check_types() {
            abi = {packedTransactionAbi, packedTransactionAbi + strlen( packedTransactionAbi )};
         } else if (contract == 2) {
            abi_is_bin = false;
-           abi = {example_abi, example_abi + strlen( example_abi )};
+           abi = {state_history_plugin_abi, state_history_plugin_abi + strlen( state_history_plugin_abi )};
         } else if (contract == token) {
             abi_is_bin = true;
             std::string error;
