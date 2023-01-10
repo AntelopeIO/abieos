@@ -14,7 +14,7 @@
 #include "time.hpp"
 #include "bytes.hpp"
 #include "asset.hpp"
-#include "opaque.hpp"
+
 namespace eosio {
 
 enum class abi_error {
@@ -234,14 +234,6 @@ struct abi_type {
    const struct_* as_struct() const { return std::get_if<struct_>(&_data); }
    const variant* as_variant() const { return std::get_if<variant>(&_data); }
 
-   const abi_serializer* get_serializer() const { 
-      const alias* a = std::get_if<alias>(&_data);
-      if (a) {
-         return a->type->get_serializer();
-      }
-      return ser;
-   }
-
    std::string bin_to_json(
          input_stream& bin, std::function<void()> f = [] {}) const;
    std::vector<char> json_to_bin(
@@ -288,15 +280,10 @@ namespace detail {
 } // namespace detail
 
 template <typename T>
-constexpr bool is_basic_abi_type(T*) {
-   return detail::contains<T>((basic_abi_types*)nullptr);
-}
+constexpr bool is_basic_abi_type = detail::contains<T>((basic_abi_types*)nullptr);
 
 template <typename T>
-constexpr bool is_basic_abi_type_v = is_basic_abi_type((T*)nullptr);
-
-template <typename T>
-auto add_type(abi& a, T*) -> std::enable_if_t<reflection::has_for_each_field_v<T> && !is_basic_abi_type_v<T>, abi_type*> {
+auto add_type(abi& a, T*) -> std::enable_if_t<reflection::has_for_each_field_v<T> && !is_basic_abi_type<T>, abi_type*> {
    std::string name      = get_type_name((T*)nullptr);
    auto [iter, inserted] = a.abi_types.try_emplace(name, name, abi_type::struct_{}, object_abi_serializer);
    if (!inserted)
@@ -310,7 +297,7 @@ auto add_type(abi& a, T*) -> std::enable_if_t<reflection::has_for_each_field_v<T
 }
 
 template <typename T>
-auto add_type(abi& a, T* t) -> std::enable_if_t<is_basic_abi_type_v<T>, abi_type*> {
+auto add_type(abi& a, T* t) -> std::enable_if_t<is_basic_abi_type<T>, abi_type*> {
    auto iter = a.abi_types.find(get_type_name(t));
    check(iter != a.abi_types.end(), convert_abi_error(abi_error::unknown_type));
    return &iter->second;
@@ -327,7 +314,7 @@ abi_type* add_type(abi& a, std::vector<T>*) {
 }
 
 template <typename... T>
-auto add_type(abi& a, std::variant<T...>*) -> std::enable_if_t<!is_basic_abi_type_v<std::variant<T...>>, abi_type*> {
+auto add_type(abi& a, std::variant<T...>*) -> std::enable_if_t<!is_basic_abi_type<std::variant<T...>>, abi_type*> {
    abi_type::variant types;
    (
          [&](auto* t) {
@@ -349,14 +336,6 @@ abi_type* add_type(abi& a, std::optional<T>*) {
    std::string name = get_type_name((std::optional<T>*)nullptr);
    auto [iter, inserted] =
          a.abi_types.try_emplace(name, name, abi_type::optional{ element_type }, optional_abi_serializer);
-   return &iter->second;
-}
-
-template <typename T>
-abi_type* add_type(abi& a, opaque<T>*) {
-   a.add_type<T>();
-   auto iter = a.abi_types.find("bytes");
-   check(iter != a.abi_types.end(), convert_abi_error(abi_error::unknown_type));
    return &iter->second;
 }
 
