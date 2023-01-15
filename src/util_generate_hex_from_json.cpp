@@ -5,12 +5,11 @@
 //
 
 #include "abieos.h"
-#include "abieos.hpp"
 #include <string>
 #include <stdexcept>
 #include <unistd.h>
 
-enum {TRANSACT_ABI, PACKED_TRANSACTION_ABI} abi_context = TRANSACT_ABI;
+enum ABI_CONTRACT {TRANSACT_ABI, PACKED_TRANSACTION_ABI, STATE_HISTORY_ABI};
 
 const char transactionAbi[] = R"({
     "version": "eosio::abi/1.0",
@@ -129,7 +128,6 @@ const char transactionAbi[] = R"({
         }
     ]
 })";
-
 const char packedTransactionAbi[] = R"({
     "version": "eosio::abi/1.0",
     "types": [
@@ -270,45 +268,67 @@ const char packedTransactionAbi[] = R"({
     ]
 })";
 
+// figure out the ABI Contract to use
+uint64_t get_contract_id(ABI_CONTRACT abiContractName) {
+    uint64_t contractId;
+
+    switch (abiContractName) {
+    case TRANSACT_ABI: contractId = 0; break;
+    case PACKED_TRANSACTION_ABI: contractId = 1; break;
+    case STATE_HISTORY_ABI: contractId = 2; break;
+    default: throw std::runtime_error("unknown ABI contract name in get_contract");
+    }
+
+    return contractId;
+}
+
 // Main work done here
-std::string generate_hex_from_json(const char *json, size_t json_size) {
-    std::string hex = "ABC";
-    printf("inside generate func with json %s with size %zu\n",json, json_size);
-    return hex;
+// abiContractName: enum with contract names
+// schema: the name of the data type or reference to schema in the ABI contract
+// json: the name and values
+std::string generate_hex_from_json(ABI_CONTRACT abiContractName, const char *schema, const char *json) {
+    printf("Schema is: %s and json is %s\n\n",schema,json);
+    schema = "error_message"; json= R"({"error_code":"1","error_msg":"foo one"})";
+
+    // create empty context
+    abieos_context_s *context = abieos_create();
+    if (! context) throw std::runtime_error("unable to create context");
+
+    // convert from json to binary. binary stored with context
+    // get contract id returns integer for the ABI contract we passed in by name
+    bool success = abieos_json_to_bin(context, get_contract_id(abiContractName), schema, json);
+    if (!success) throw std::runtime_error("abieos json to bin returned failure");
+
+    // now time to return the hex string
+    return abieos_get_bin_hex(context);
 }
 
 // prints usage
 void help(const char* exec_name) {
-    fprintf(stderr, "Usage %s: [-t|-p] -j JSON \n", exec_name);
-    fprintf(stderr, "\t-t abi transaction or -p abi packed transaction: defaults to -t abi transaction\n");
+    fprintf(stderr, "Usage %s: [-t|-p|-s] -j JSON -x type\n", exec_name);
+    fprintf(stderr, "\t-t abi transaction: default\n");
+    fprintf(stderr, "\t-p abi packed transaction\n");
+    fprintf(stderr, "\t-s state history\n");
+    fprintf(stderr,"\t-j json: string to convert to hex\n");
+    fprintf(stderr,"\t-x type: a specific data type or schema section (example uint16, action, name, uint8[])\n");
     fprintf(stderr, "\t json string limited to 256 bytes\n\n");
 }
 
-// makes sure input string conforms to 256 byte limit
-// might as well calc string size
-size_t find_json_length(char *json) {
-    size_t true_length = 0;
-    while(*(json + true_length) != '\0') {
-        ++true_length;
-        // already incremented position is beyond last check
-        if (true_length > 255) {
-            json[true_length] = '\0';
-            break;
-        }
-    }
-    return true_length;
-}
-
 int main(int argc, char *argv[]) {
-    try {
-        char *json = nullptr;
+    std::string json;
+    std::string type;
+    std::string hex;
+    ABI_CONTRACT abiContractName = TRANSACT_ABI;
+    int opt;
 
-        int opt;
-        while ((opt = getopt(argc, argv, "tpj:")) != -1) {
+    try {
+        while ((opt = getopt(argc, argv, "tpsj:x:")) != -1) {
             switch (opt) {
-            case 't': abi_context = TRANSACT_ABI; break;
-            case 'p': abi_context = PACKED_TRANSACTION_ABI; break;
+            case 't': abiContractName = TRANSACT_ABI; break;
+            case 'p': abiContractName = PACKED_TRANSACTION_ABI; break;
+            case 's': abiContractName = STATE_HISTORY_ABI; break;
             case 'j': json = optarg; break;
+            case 'x': type = optarg; break;
             case '?':
                 if ('c' == optopt) {
                     fprintf(stderr, "Option -%c requires an argument.\n", optopt);
@@ -321,12 +341,17 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (json == nullptr) {
+        if (json.empty() || type.empty()) {
             help(*argv);
             exit(EXIT_FAILURE);
         }
-        size_t json_size = find_json_length(json);
-        generate_hex_from_json(json, json_size);
+
+        hex = generate_hex_from_json(abiContractName, type.c_str(), json.c_str());
+        if (hex.length() > 0) {
+            printf("%s\n",hex.c_str());
+        } else {
+            printf("no hex value\n");
+        }
         return 0;
     } catch (std::exception& e) {
         printf("error: %s\n", e.what());
