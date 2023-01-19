@@ -35,7 +35,7 @@ endif()
 find_package(Threads)
 include(GNUInstallDirs)
 
-add_library(abieos STATIC src/abi.cpp src/crypto.cpp include/eosio/fpconv.c src/util_generate_hex_from_json.cpp)
+add_library(abieos STATIC src/abi.cpp src/crypto.cpp include/eosio/fpconv.c)
 target_include_directories(abieos PUBLIC 
                           "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/include" 
                           "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/external/rapidjson/include"
@@ -74,8 +74,11 @@ add_executable(test_abieos_reflect src/reflect_test.cpp)
 target_include_directories(test_abieos_reflect PRIVATE include)
 add_test(NAME test_abieos_reflect COMMAND test_abieos_reflect)
 
-add_executable(generate_hex_from_json src/util_generate_hex_from_json.cpp src/abieos.cpp)
+add_executable(generate_hex_from_json src/util_generate_hex_from_json.cpp src/abieos.cpp src/ship.abi.cpp)
 target_link_libraries(generate_hex_from_json abieos ${CMAKE_THREAD_LIBS_INIT})
+
+add_executable(generate_json_from_hex src/util_generate_json_from_hex.cpp src/abieos.cpp src/ship.abi.cpp)
+target_link_libraries(generate_json_from_hex abieos ${CMAKE_THREAD_LIBS_INIT})
 
 # Causes build issues on some platforms
 # add_executable(test_abieos_sanitize src/test.cpp src/abieos.cpp src/abi.cpp src/crypto.cpp include/eosio/fpconv.c)
