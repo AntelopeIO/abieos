@@ -13,6 +13,7 @@
 #include <vector>
 #include <cstring>
 #include <limits>
+#include <cstdint>
 
 namespace eosio {
 
