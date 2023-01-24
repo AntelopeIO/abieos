@@ -20,6 +20,7 @@ void eosio_assert_code(uint32_t, uint64_t);
 }
 #else
 #include <stdexcept>
+#include <stdint.h>
 #endif
 
 #include <string>
