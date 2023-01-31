@@ -112,11 +112,6 @@ int main(int argc, char *argv[]) {
             case 'j': json = optarg; break;
             case 'x': type = optarg; break;
             case '?':
-                if ('c' == optopt) {
-                    std::cerr << "Option -" << optopt << "required an argument" << std::endl;
-                } else if (isprint(optopt)) {
-                    std::cerr << "Unknown option -" << optopt << std::endl;
-                }
                 exit(EXIT_FAILURE);
             default:
                 exit(EXIT_FAILURE);
