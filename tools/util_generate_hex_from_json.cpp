@@ -1,10 +1,9 @@
 //
-// Created by Eric Passmore on 1/14/23.
 // Purpose: command line option to generate hex code from JSON
 //   may be used to generate serialization tests cases in other languages and external packages
 //
 
-#include "../src/abieos.h"
+#include <abieos.h>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -21,11 +20,11 @@
 // schema: the name of the data type or reference to schema in the ABI contract
 // json: the name and values
 // verbose: flag to print out step by step messages
-std::string generate_hex_from_json(const char *abi_definition, const char *contract_name, const char *schema, const char *json, bool verbose) {
+std::string generate_hex_from_json(const char* abi_definition, const char* contract_name, const char* schema, const char* json, bool verbose) {
     if (verbose) std::cerr << "Schema is: " << schema << " and json is " << json << std::endl << std::endl;
 
     // create empty context
-    abieos_context_s *context = abieos_create();
+    abieos_context_s* context = abieos_create();
     if (! context) throw std::runtime_error("unable to create context");
     if (verbose) std::cerr << "step 1 of 4: created empty ABI context" << std::endl;
 
@@ -66,13 +65,12 @@ std::string generate_hex_from_json(const char *abi_definition, const char *contr
 
 // prints usage
 void help(const char* exec_name) {
-
-    std::cerr << "Usage " << exec_name << ": -f -j JSON -x type [-v]" << std::endl;
-    std::cerr << "\t-f file with ABI definition" << std::endl;
-    std::cerr << "\t-v verbose, print out steps" << std::endl;
-    std::cerr << "\t-j json: string to convert to hex" << std::endl;
-    std::cerr << "\t-x type: a specific data type or schema section (example uint16, action, name, uint8[])"  << std::endl;
-    std::cerr << "\texample: generate_hex_from_json -f ./transaction.abi -x bool -j true"  << std::endl << std::endl;
+    std::cerr << "Usage " << exec_name << ": -f -j JSON -x type [-v]";
+    std::cerr << "\t-f file with ABI definition\n";
+    std::cerr << "\t-v verbose, print out steps\n";
+    std::cerr << "\t-j json: string to convert to hex\n";
+    std::cerr << "\t-x type: a specific data type or schema section (example uint16, action, name, uint8[])\n";
+    std::cerr << "\texample: generate_hex_from_json -f ./transaction.abi -x bool -j true\n" << std::endl;
 }
 
 // reads file returning string of contents
@@ -87,9 +85,9 @@ std::string retrieveFileContents(const std::string &filename ) {
     }
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
     // static string for our contract id
-    static const char *contract_name = "eosio";
+    static const char* contract_name = "eosio";
     // input string to transform to hex code
     std::string json;
     // schema name ex: bool
@@ -138,11 +136,11 @@ int main(int argc, char *argv[]) {
         if (hex.length() > 0) {
             std::cout << hex << std::endl;
         } else {
-            std::cerr << "no json value" << std::endl;
+            std::cerr << "returned empty" << std::endl;
         }
         return 0;
     } catch (std::exception& e) {
-        std::cerr << "no json value: error " << e.what() << std::endl;
+        std::cerr << "Could not compute hex value: " << e.what() << std::endl;
         return 1;
     }
 }
