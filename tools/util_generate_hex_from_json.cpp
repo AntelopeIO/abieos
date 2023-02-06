@@ -24,21 +24,22 @@ std::string generate_hex_from_json(const char* abi_definition, const char* contr
     if (verbose) std::cerr << "Schema is: " << schema << " and json is " << json << std::endl << std::endl;
 
     // create empty context
-    abieos_context_s* context = abieos_create();
+    using unique_abieos = std::unique_ptr<abieos_context, decltype( &abieos_destroy )>;
+    unique_abieos context( abieos_create(), &abieos_destroy );
     if (! context) throw std::runtime_error("unable to create context");
     if (verbose) std::cerr << "step 1 of 4: created empty ABI context" << std::endl;
 
     // set the transaction context.
     // first get the contract_id
-    uint64_t contract_id = abieos_string_to_name(context, contract_name);
+    uint64_t contract_id = abieos_string_to_name(context.get(), contract_name);
     if (contract_id == 0) {
-        std::cerr << "Error: abieos_string_to_name " << abieos_get_error(context) << std::endl;
+        std::cerr << "Error: abieos_string_to_name " << abieos_get_error(context.get()) << std::endl;
         throw std::runtime_error("unable to set context");
     }
     // use our id and set the ABI
-    bool successSettingAbi = abieos_set_abi(context, contract_id, abi_definition);
+    bool successSettingAbi = abieos_set_abi(context.get(), contract_id, abi_definition);
     if (! successSettingAbi) {
-        std::cerr << "Error: abieos_set_abi " << abieos_get_error(context) << std::endl;
+        std::cerr << "Error: abieos_set_abi " << abieos_get_error(context.get()) << std::endl;
         throw std::runtime_error("unable to set context");
     }
     if (verbose) std::cerr << "step 2 of 4: established context for transactions, packed transactions, and state history" << std::endl;
@@ -46,19 +47,19 @@ std::string generate_hex_from_json(const char* abi_definition, const char* contr
     // convert from json to binary. binary stored with context
     // get contract id returns integer for the ABI contract we passed in by name
     bool successJsonToBin = abieos_json_to_bin_reorderable(
-        context,
+        context.get(),
         contract_id,
         schema,
         json
         );
     if (!successJsonToBin) {
         std::cerr << "failed in step 3: using context " << contract_name << std::endl;
-        throw std::runtime_error(abieos_get_error(context));
+        throw std::runtime_error(abieos_get_error(context.get()));
     }
     if (verbose) std::cerr << "step 3 of 4: completed parsing json to binary" << std::endl;
 
     // now time to return the hex string
-    std::string hex = abieos_get_bin_hex(context);
+    std::string hex = abieos_get_bin_hex(context.get());
     if (verbose) std::cerr << "step 4 of 4: converted binary to hex" << std::endl << std::endl;
     return hex;
 }
