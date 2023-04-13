@@ -19,8 +19,9 @@ struct name {
    constexpr explicit name(std::string_view str) : value{ string_to_name_strict(str) } { }
 
    constexpr name(const name&) = default;
-
-   constexpr   operator raw() const { return static_cast<raw>(value); }
+   constexpr name& operator=(const name&) = default;
+   
+   constexpr explicit operator raw() const { return static_cast<raw>(value); }
    explicit    operator std::string() const { return eosio::name_to_string(value); }
    std::string to_string() const { return std::string(*this); }
    /**
