@@ -274,7 +274,7 @@ namespace eosio { namespace ship_protocol {
       // optional serializes as bool[,transaction_trace]
       // vector serializes as size[,transaction_trace..] but vector will only ever have 0 or 1 transaction trace
       // This assumes that bool and size for false/true serializes to same as size 0/1
-      std::vector<recurse_transaction_trace> failed_dtrx_trace = {};
+      std::vector<recurse_transaction_trace> failed_dtrx_trace;
       std::optional<partial_transaction>     partial           = {};
    };
 
