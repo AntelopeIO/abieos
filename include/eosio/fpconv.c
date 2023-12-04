@@ -308,7 +308,7 @@ static int filter_special(double fp, char* dest)
     return 3;
 }
 
-int fpconv_dtoa(double d, char dest[24])
+int fpconv_dtoa(double d, char dest[25])
 {
     char digits[18];
 
