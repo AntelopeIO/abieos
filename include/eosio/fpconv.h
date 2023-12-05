@@ -10,8 +10,8 @@
  *
  * Input:
  * fp -> the double to convert, dest -> destination buffer.
- * The generated string will never be longer than 24 characters.
- * Make sure to pass a pointer to at least 24 bytes of memory.
+ * The generated string will never be longer than 24 characters plus a possible '-' character.
+ * Make sure to pass a pointer to at least 25 bytes of memory.
  * The emitted string will not be null terminated.
  *
  * Output:
@@ -21,7 +21,7 @@
  *
  * void print(double d)
  * {
- *      char buf[24 + 1] // plus null terminator
+ *      char buf[25 + 1] // plus null terminator
  *      int str_len = fpconv_dtoa(d, buf);
  *
  *      buf[str_len] = '\0';
@@ -31,9 +31,9 @@
  */
 
 #   ifdef __cplusplus
-extern "C" int fpconv_dtoa(double fp, char dest[24]);
+extern "C" int fpconv_dtoa(double fp, char dest[25]);
 #   else
-int fpconv_dtoa(double fp, char dest[24]);
+int fpconv_dtoa(double fp, char dest[25]);
 #   endif
 
 #endif
