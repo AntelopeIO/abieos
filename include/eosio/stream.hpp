@@ -104,7 +104,8 @@ struct fixed_buf_stream {
 
    void write(const void* src, std::size_t sz) {
       check( pos + sz <= end, convert_stream_error(stream_error::overrun) );
-      memcpy(pos, src, sz);
+      if(sz)
+         memcpy(pos, src, sz);
       pos += sz;
    }
 
@@ -211,7 +212,8 @@ struct input_stream {
 
    void read(void* dest, size_t size) {
       check( size <= size_t(end-pos), convert_stream_error(stream_error::overrun) );
-      memcpy(dest, pos, size);
+      if(size)
+         memcpy(dest, pos, size);
       pos += size;
    }
 
