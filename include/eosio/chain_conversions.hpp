@@ -298,7 +298,7 @@ inline std::string microseconds_to_str(uint64_t microseconds) {
       return false;
    if (!parse_uint(sec, 2))
       return false;
-   result = sys_days(year_month_day{year_t{y}, month_t{m}, day_t{d}}.to_days()).time_since_epoch().count() * 86400 + h * 3600 + min * 60 + sec;
+   result = sys_days(year_month_day{year_t{y}, month_t{m}, day_t{d}}.to_days()).time_since_epoch().count() * 86400u + h * 3600u + min * 60u + sec;
    if (eat_fractional && s != end && *s == '.') {
       ++s;
       while (s != end && *s >= '0' && *s <= '9') ++s;
