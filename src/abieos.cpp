@@ -297,3 +297,13 @@ extern "C" const char* abieos_abi_bin_to_json(abieos_context* context, const cha
         return context->result_str.c_str();
     });
 }
+
+extern "C" abieos_bool abieos_delete_contract(abieos_context* context, uint64_t contract) {
+    auto itr = context->contracts.find(::abieos::name{contract});
+    if(itr == context->contracts.end()) {
+        return false;
+    } else {
+        context->contracts.erase(itr);
+        return true;
+    }
+}
