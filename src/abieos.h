@@ -79,6 +79,9 @@ abieos_bool abieos_abi_json_to_bin(abieos_context* context, const char* json);
 // retrieve
 const char* abieos_abi_bin_to_json(abieos_context* context, const char* abi_bin_data, const size_t abi_bin_data_size);
 
+// Delete a contract from the context
+abieos_bool abieos_delete_contract(abieos_context* context, uint64_t contract);
+
 #ifdef __cplusplus
 }
 #endif
