@@ -808,6 +808,17 @@ namespace eosio { namespace ship_protocol {
 
    using resource_limits_config = std::variant<resource_limits_config_v0>;
 
+   struct finality_data {
+      uint32_t           major_version = {};
+      uint32_t           minor_version = {};
+      uint32_t           active_finalizer_policy_generation = {};
+      eosio::checksum256 action_mroot = {};
+      eosio::checksum256 base_digest = {};
+   };
+
+   EOSIO_REFLECT(finality_data, major_version, minor_version, active_finalizer_policy_generation,
+                 action_mroot, base_digest)
+
 }} // namespace eosio::ship_protocol
 
 namespace eosio {
