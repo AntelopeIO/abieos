@@ -80,6 +80,10 @@ namespace eosio { namespace ship_protocol {
 
    EOSIO_REFLECT(get_status_request_v0)
 
+   struct get_status_request_v1 {};
+
+   EOSIO_REFLECT(get_status_request_v1)
+
    struct block_position {
       uint32_t           block_num = {};
       eosio::checksum256 block_id  = {};
@@ -87,18 +91,31 @@ namespace eosio { namespace ship_protocol {
 
    EOSIO_REFLECT(block_position, block_num, block_id)
 
-   struct get_status_result_v0 {
+   struct get_status_result_base {
       block_position                      head                    = {};
       block_position                      last_irreversible       = {};
       uint32_t                            trace_begin_block       = {};
       uint32_t                            trace_end_block         = {};
       uint32_t                            chain_state_begin_block = {};
       uint32_t                            chain_state_end_block   = {};
+   };
+
+   EOSIO_REFLECT(get_status_result_base, head, last_irreversible, trace_begin_block, trace_end_block,
+                 chain_state_begin_block, chain_state_end_block)
+
+   struct get_status_result_v0 : get_status_result_base {
       might_not_exist<eosio::checksum256> chain_id;
    };
 
-   EOSIO_REFLECT(get_status_result_v0, head, last_irreversible, trace_begin_block, trace_end_block,
-                 chain_state_begin_block, chain_state_end_block, chain_id)
+   EOSIO_REFLECT(get_status_result_v0, base get_status_result_base, chain_id)
+
+   struct get_status_result_v1 : get_status_result_base {
+      eosio::checksum256                  chain_id;
+      uint32_t                            finality_data_begin_block = {};
+      uint32_t                            finality_data_end_block   = {};
+   };
+
+   EOSIO_REFLECT(get_status_result_v1, base get_status_result_base, chain_id, finality_data_begin_block, finality_data_end_block)
 
    struct get_blocks_request_v0 {
       uint32_t                    start_block_num        = {};
@@ -126,7 +143,7 @@ namespace eosio { namespace ship_protocol {
 
    EOSIO_REFLECT(get_blocks_ack_request_v0, num_messages)
 
-   using request = std::variant<get_status_request_v0, get_blocks_request_v0, get_blocks_ack_request_v0, get_blocks_request_v1>;
+   using request = std::variant<get_status_request_v0, get_blocks_request_v0, get_blocks_ack_request_v0, get_blocks_request_v1, get_status_request_v1>;
 
    struct get_blocks_result_base {
       block_position                head              = {};
@@ -374,7 +391,7 @@ namespace eosio { namespace ship_protocol {
 
    EOSIO_REFLECT(signed_block, base signed_block_header, transactions, block_extensions)
 
-   using result = std::variant<get_status_result_v0, get_blocks_result_v0, get_blocks_result_v1>;
+   using result = std::variant<get_status_result_v0, get_blocks_result_v0, get_blocks_result_v1, get_status_result_v1>;
 
    struct transaction_header {
       eosio::time_point_sec expiration          = {};
