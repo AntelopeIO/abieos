@@ -808,16 +808,34 @@ namespace eosio { namespace ship_protocol {
 
    using resource_limits_config = std::variant<resource_limits_config_v0>;
 
+   struct finalizer_authority {
+      std::string         description = {};
+      uint64_t            weight      = {};
+      eosio::input_stream public_key  = {};
+   };
+
+   EOSIO_REFLECT(finalizer_authority, description, weight, public_key)
+
+   struct finalizer_policy {
+      uint32_t                         generation = {};
+      uint64_t                         threshold  = {};
+      std::vector<finalizer_authority> finalizers = {};
+   };
+
+   EOSIO_REFLECT(finalizer_policy, generation, threshold, finalizers)
+
    struct finality_data {
-      uint32_t           major_version                      = {};
-      uint32_t           minor_version                      = {};
-      uint32_t           active_finalizer_policy_generation = {};
-      eosio::checksum256 action_mroot                       = {};
-      eosio::checksum256 base_digest                        = {};
+      uint32_t                        major_version                      = {};
+      uint32_t                        minor_version                      = {};
+      uint32_t                        active_finalizer_policy_generation = {};
+      uint32_t                        final_on_strong_qc_block_num       = {};
+      eosio::checksum256              action_mroot                       = {};
+      eosio::checksum256              base_digest                        = {};
+      std::optional<finalizer_policy> proposed_finalizer_policy          = {};
    };
 
    EOSIO_REFLECT(finality_data, major_version, minor_version, active_finalizer_policy_generation,
-                 action_mroot, base_digest)
+                 final_on_strong_qc_block_num, action_mroot, base_digest, proposed_finalizer_policy)
 
 }} // namespace eosio::ship_protocol
 
