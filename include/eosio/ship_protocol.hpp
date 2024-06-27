@@ -848,11 +848,11 @@ namespace eosio { namespace ship_protocol {
       uint32_t                        final_on_strong_qc_block_num       = {};
       eosio::checksum256              action_mroot                       = {};
       eosio::checksum256              base_digest                        = {};
-      std::optional<finalizer_policy> proposed_finalizer_policy          = {};
+      std::optional<finalizer_policy> pending_finalizer_policy           = {};
    };
 
    EOSIO_REFLECT(finality_data, major_version, minor_version, active_finalizer_policy_generation,
-                 final_on_strong_qc_block_num, action_mroot, base_digest, proposed_finalizer_policy)
+                 final_on_strong_qc_block_num, action_mroot, base_digest, pending_finalizer_policy)
 
 }} // namespace eosio::ship_protocol
 
