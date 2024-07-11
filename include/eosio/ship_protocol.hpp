@@ -825,21 +825,21 @@ namespace eosio { namespace ship_protocol {
 
    using resource_limits_config = std::variant<resource_limits_config_v0>;
 
-   struct finalizer_authority {
-      std::string         description = {};
-      uint64_t            weight      = {};
-      eosio::input_stream public_key  = {};
+   struct finalizer_authority_with_string_key {
+      std::string   description = {};
+      uint64_t      weight      = {};
+      std::string   public_key  = {};
    };
 
-   EOSIO_REFLECT(finalizer_authority, description, weight, public_key)
+   EOSIO_REFLECT(finalizer_authority_with_string_key, description, weight, public_key)
 
-   struct finalizer_policy {
-      uint32_t                         generation = {};
-      uint64_t                         threshold  = {};
-      std::vector<finalizer_authority> finalizers = {};
+   struct finalizer_policy_with_string_key {
+      uint32_t                                         generation = {};
+      uint64_t                                         threshold  = {};
+      std::vector<finalizer_authority_with_string_key> finalizers = {};
    };
 
-   EOSIO_REFLECT(finalizer_policy, generation, threshold, finalizers)
+   EOSIO_REFLECT(finalizer_policy_with_string_key, generation, threshold, finalizers)
 
    struct finality_data {
       uint32_t                        major_version                      = {};
@@ -848,7 +848,7 @@ namespace eosio { namespace ship_protocol {
       uint32_t                        final_on_strong_qc_block_num       = {};
       eosio::checksum256              action_mroot                       = {};
       eosio::checksum256              base_digest                        = {};
-      std::optional<finalizer_policy> pending_finalizer_policy           = {};
+      std::optional<finalizer_policy_with_string_key> pending_finalizer_policy = {};
    };
 
    EOSIO_REFLECT(finality_data, major_version, minor_version, active_finalizer_policy_generation,
