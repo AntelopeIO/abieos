@@ -917,7 +917,7 @@ namespace eosio { namespace ship_protocol {
    EOSIO_REFLECT(proposer_policy_diff, version, proposal_time, remove_indexes, insert_indexes)
 
    struct finality_extension {
-      qc_claim                             qc_claim                  = {};
+      ship_protocol::qc_claim              qc_claim                  = {};
       std::optional<finalizer_policy_diff> new_finalizer_policy_diff = {};
       std::optional<proposer_policy_diff>  new_proposer_policy_diff  = {};
    };
