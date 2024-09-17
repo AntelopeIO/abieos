@@ -845,14 +845,20 @@ namespace eosio { namespace ship_protocol {
       uint32_t                        major_version                      = {};
       uint32_t                        minor_version                      = {};
       uint32_t                        active_finalizer_policy_generation = {};
-      uint32_t                        final_on_strong_qc_block_num       = {};
       eosio::checksum256              action_mroot                       = {};
+      eosio::checksum256              reversible_blocks_mroot            = {};
+      uint32_t                        latest_qc_claim_block_num          = {};
+      eosio::checksum256              latest_qc_claim_finality_digest    = {};
+      eosio::block_timestamp          latest_qc_claim_timestamp          = {};
       eosio::checksum256              base_digest                        = {};
       std::optional<finalizer_policy_with_string_key> pending_finalizer_policy = {};
+      uint32_t                        last_pending_finalizer_policy_generation = {};
    };
 
    EOSIO_REFLECT(finality_data, major_version, minor_version, active_finalizer_policy_generation,
-                 final_on_strong_qc_block_num, action_mroot, base_digest, pending_finalizer_policy)
+                 action_mroot, reversible_blocks_mroot, latest_qc_claim_block_num, latest_qc_claim_finality_digest,
+                 latest_qc_claim_timestamp, base_digest, pending_finalizer_policy, last_pending_finalizer_policy_generation)
+
 
 }} // namespace eosio::ship_protocol
 
