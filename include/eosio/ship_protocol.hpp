@@ -825,6 +825,14 @@ namespace eosio { namespace ship_protocol {
 
    using resource_limits_config = std::variant<resource_limits_config_v0>;
 
+   struct finalizer_authority {
+      std::string       description = {};
+      uint64_t          weight      = {};
+      std::vector<char> public_key  = {};
+   };
+
+   EOSIO_REFLECT(finalizer_authority, description, weight, public_key)
+
    struct finalizer_authority_with_string_key {
       std::string   description = {};
       uint64_t      weight      = {};
@@ -859,6 +867,64 @@ namespace eosio { namespace ship_protocol {
                  action_mroot, reversible_blocks_mroot, latest_qc_claim_block_num, latest_qc_claim_finality_digest,
                  latest_qc_claim_timestamp, base_digest, pending_finalizer_policy, last_pending_finalizer_policy_generation)
 
+   struct protocol_feature_activation_extension {
+      std::vector<eosio::checksum256> protocol_features = {};
+   };
+
+   EOSIO_REFLECT(protocol_feature_activation_extension, protocol_features)
+
+   struct producer_schedule_change_extension : producer_authority_schedule {};
+
+   EOSIO_REFLECT(producer_schedule_change_extension, base producer_authority_schedule);
+
+   struct qc_claim {
+      uint32_t  block_num    = {};
+      bool      is_strong_qc = {};
+   };
+
+   EOSIO_REFLECT(qc_claim, block_num, is_strong_qc)
+
+   struct insert_finalizer_policy_index_pair {
+      uint16_t            index = {};
+      finalizer_authority value = {};
+   };
+
+   EOSIO_REFLECT(insert_finalizer_policy_index_pair, index, value)
+
+   struct finalizer_policy_diff {
+      uint32_t                                        generation     = {};
+      uint64_t                                        threshold      = {};
+      std::vector<uint16_t>                           remove_indexes = {};
+      std::vector<insert_finalizer_policy_index_pair> insert_indexes = {};
+   };
+
+   EOSIO_REFLECT(finalizer_policy_diff, generation, threshold, remove_indexes, insert_indexes)
+
+   struct insert_proposer_policy_index_pair {
+      uint16_t           index = {};
+      producer_authority value = {};
+   };
+
+   EOSIO_REFLECT(insert_proposer_policy_index_pair, index, value)
+
+   struct proposer_policy_diff {
+      uint32_t                                       version        = {};
+      eosio::block_timestamp                         proposal_time  = {};
+      std::vector<uint16_t>                          remove_indexes = {};
+      std::vector<insert_proposer_policy_index_pair> insert_indexes = {};
+   };
+
+   EOSIO_REFLECT(proposer_policy_diff, version, proposal_time, remove_indexes, insert_indexes)
+
+   struct finality_extension {
+      qc_claim                             qc_claim                  = {};
+      std::optional<finalizer_policy_diff> new_finalizer_policy_diff = {};
+      std::optional<proposer_policy_diff>  new_proposer_policy_diff  = {};
+   };
+
+   EOSIO_REFLECT(finality_extension, qc_claim, new_finalizer_policy_diff, new_proposer_policy_diff)
+
+   using block_header_extension = std::variant<protocol_feature_activation_extension, producer_schedule_change_extension, finality_extension>;
 
 }} // namespace eosio::ship_protocol
 
