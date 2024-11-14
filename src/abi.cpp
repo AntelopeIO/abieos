@@ -57,8 +57,11 @@ abi_type* get_type(std::map<std::string, abi_type>& abi_types,
             return &iter->second;
         } else if (ends_with(name, "[]")) {
             auto element = get_type(abi_types, name.substr(0, name.size() - 2), depth + 1);
-            eosio::check(!holds_any_alternative<abi_type::optional, abi_type::array, abi_type::extension>(element->_data),
-                  eosio::convert_abi_error(abi_error::invalid_nesting));
+            // removed abi_type::array from invalid types for nesting, array of arrays should work
+            eosio::check(
+                !holds_any_alternative<abi_type::optional, abi_type::extension>(element->_data),
+                eosio::convert_abi_error(abi_error::invalid_nesting)
+            );
             auto [iter, success] = abi_types.try_emplace(name, name, abi_type::array{element}, &abi_serializer_for< ::abieos::pseudo_array>);
             return &iter->second;
         } else if (ends_with(name, "$")) {
