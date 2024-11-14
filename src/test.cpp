@@ -1226,6 +1226,18 @@ void check_types() {
     check_checksum_capacity(eosio::checksum256({1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}), 32, "checksum256");
     check_checksum_capacity(eosio::checksum512({1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}), 64, "checksum512");
 
+    // check array of strings
+    check_type(context, 0, "string[]", R"(["hello","world"])");
+
+    // check string[][]
+    check_type(context, 0, "string[][]", R"([["A"],["B"],["C","D"]])");
+
+    // check uint8[][]
+    check_type(context, 0, "uint8[][]", R"([[1]])");
+
+    // check uint8[][][]
+    check_type(context, 0, "uint8[][][]", R"([[[1,2,3],[4,5,6]],[[7,8,9],[]]])");
+
     abieos_destroy(context);
 }
 
