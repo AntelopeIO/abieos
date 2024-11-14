@@ -66,7 +66,7 @@ std::string generate_hex_from_json(const char* abi_definition, const char* contr
 
 // prints usage
 void help(const char* exec_name) {
-    std::cerr << "Usage " << exec_name << ": -f -j JSON -x type [-v]";
+    std::cerr << "Usage " << exec_name << ": -f -j JSON -x type [-v]\n";
     std::cerr << "\t-f file with ABI definition\n";
     std::cerr << "\t-v verbose, print out steps\n";
     std::cerr << "\t-j json: string to convert to hex\n";
