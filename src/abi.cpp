@@ -43,28 +43,34 @@ constexpr void for_each_abi_type(F f) {
     std::apply([&f](auto&& ...t) { (f(&t), ...); }, basic_abi_types{});
 }
 
-abi_type* get_type(std::map<std::string, abi_type>& abi_types,
-                           const std::string& name, int depth) {
-   eosio::check(depth < 32,
-        eosio::convert_abi_error(abi_error::recursion_limit_reached));
+abi_type* get_type(std::map<std::string, abi_type>& abi_types, const std::string& name, int depth) {
+    eosio::check(depth < 32, eosio::convert_abi_error(abi_error::recursion_limit_reached));
     auto it = abi_types.find(name);
     if (it == abi_types.end()) {
         if (ends_with(name, "?")) {
             auto base = get_type(abi_types, name.substr(0, name.size() - 1), depth + 1);
-            eosio::check(!holds_any_alternative<abi_type::optional, abi_type::array, abi_type::extension>(base->_data),
-                  eosio::convert_abi_error(abi_error::invalid_nesting));
+            // removed abi_type::array from invalid types for nesting, optional array should work
+            eosio::check(
+                !holds_any_alternative<abi_type::optional, abi_type::extension>(base->_data),
+                "Invalid optional nesting for type: " + name
+            );
             auto [iter, success] = abi_types.try_emplace(name, name, abi_type::optional{base}, &abi_serializer_for< ::abieos::pseudo_optional>);
             return &iter->second;
         } else if (ends_with(name, "[]")) {
             auto element = get_type(abi_types, name.substr(0, name.size() - 2), depth + 1);
-            eosio::check(!holds_any_alternative<abi_type::optional, abi_type::array, abi_type::extension>(element->_data),
-                  eosio::convert_abi_error(abi_error::invalid_nesting));
+            // removed abi_type::array from invalid types for nesting, array of arrays should work
+            eosio::check(
+                !holds_any_alternative<abi_type::optional, abi_type::extension>(element->_data),
+                "Invalid array nesting for type: " + name
+            );
             auto [iter, success] = abi_types.try_emplace(name, name, abi_type::array{element}, &abi_serializer_for< ::abieos::pseudo_array>);
             return &iter->second;
         } else if (ends_with(name, "$")) {
             auto base = get_type(abi_types, name.substr(0, name.size() - 1), depth + 1);
-            eosio::check(!std::holds_alternative<abi_type::extension>(base->_data),
-                  eosio::convert_abi_error(abi_error::invalid_nesting));
+            eosio::check(
+                !std::holds_alternative<abi_type::extension>(base->_data),
+                "Invalid extension nesting for type: " + name
+            );
             auto [iter, success] = abi_types.try_emplace(name, name, abi_type::extension{base}, &abi_serializer_for< ::abieos::pseudo_extension>);
             return &iter->second;
         } else
