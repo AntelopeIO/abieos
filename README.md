@@ -2,7 +2,9 @@
 
 Binary <> JSON conversion using ABIs. Compatible with languages which can interface to C; see [src/abieos.h](src/abieos.h).
 
-Alpha release. Feedback requested.
+## Important or breaking changes
+`main` branch is considered stable. No explicit releases are made. Important or possibly breaking changes are listed below. View linked PR for additional details.
+* **Janurary 2025 via PR [#37](https://github.com/AntelopeIO/abieos/pull/37)**: When converting from JSON, `name`s must be valid Antelope names (no more than 13 characters, a-z.12345 only, etc). Most use cases are unaffected by this change. Consuming state_history's JSON ABI via state_history's websocket will require a minor change in user code.  
 
 ## Packing transactions
 

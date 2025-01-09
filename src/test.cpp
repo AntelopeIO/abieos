@@ -574,6 +574,25 @@ void check_error(abieos_context* context, const std::string& s, F f) {
     check_except(s, [&] { check_context(context, f()); });
 }
 
+/* abieos' C interface, used by check_types() below, uses abi_def which disallows the invalid
+ * table names SHIP's ABI contains. For purposes of this test, scrub all the tables from the ABI
+ * before loading it; they aren't used.
+ * The check_ship_abi_load() test checks abi_def vs abi_def_nonstrict_table_name behavior on the unmodified
+ * ship.abi.cpp contents.
+ */
+rapidjson::StringBuffer scrub_shipabi_tables(const char* const s) {
+    rapidjson::Document document;
+    document.Parse(s);
+    check(document.IsObject(), "unexpected ship abi");
+    check(document["tables"].IsArray(), "unexpected ship abi");
+    document["tables"].GetArray().Clear();
+
+    rapidjson::StringBuffer buff;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(buff);
+    document.Accept(writer);
+    return buff;
+}
+
 void check_types() {
     auto context = check(abieos_create());
     auto token = check_context(context, abieos_string_to_name(context, "eosio.token"));
@@ -582,7 +601,7 @@ void check_types() {
     auto testKvAbiName = check_context(context, abieos_string_to_name(context, "testkv.abi"));
     check_context(context, abieos_set_abi(context, 0, transactionAbi));
     check_context(context, abieos_set_abi(context, 1, packedTransactionAbi));
-    check_context(context, abieos_set_abi(context, 2, state_history_plugin_abi));
+    check_context(context, abieos_set_abi(context, 2, scrub_shipabi_tables(state_history_plugin_abi).GetString()));
     check_context(context, abieos_set_abi_hex(context, token, tokenHexAbi));
     check_context(context, abieos_set_abi(context, testAbiName, testAbi));
     check_context(context, abieos_set_abi_hex(context, testHexAbiName, testHexAbi));
@@ -830,9 +849,8 @@ void check_types() {
     check_type(context, 0, "name", R"("ab.cd.ef.1234")");
     check_type(context, 0, "name", R"("..ab.cd.ef..")", R"("..ab.cd.ef")");
     check_type(context, 0, "name", R"("zzzzzzzzzzzz")");
-    // todo: should json conversion fall back to hash? reenable this error?
-    // check_error(context, "thirteenth character in name cannot be a letter that comes after j",
-    //             [&] { return abieos_json_to_bin(context, 0, "name", R"("zzzzzzzzzzzzz")"); });
+    check_error(context, "thirteenth character in name cannot be a letter that comes after j",
+                [&] { return abieos_json_to_bin(context, 0, "name", R"("zzzzzzzzzzzzz")"); });
     check_error(context, "expected string containing name",
                 [&] { return abieos_json_to_bin(context, 0, "name", "true"); });
     check_type(context, 0, "bytes", R"("")");
@@ -1241,10 +1259,30 @@ void check_types() {
     abieos_destroy(context);
 }
 
+void check_ship_abi_load() {
+    {
+        eosio::abi_def def;
+        std::string ship_abi_copy = state_history_plugin_abi;
+        eosio::json_token_stream stream(ship_abi_copy.data());
+        try {
+            from_json(def, stream);
+            throw std::runtime_error("abi_def shouldn't have loaded ship ABI");
+        } catch (std::exception& e) {}
+    }
+    {
+        eosio::abi_def_nonstrict_table_name def;
+        std::string ship_abi_copy = state_history_plugin_abi;
+        eosio::json_token_stream stream(ship_abi_copy.data());
+        from_json(def, stream);
+    }
+}
+
 int main() {
     try {
         check_types();
-        printf("\ncheck_types ok\n\n");
+        printf("\ncheck_types ok\n");
+        check_ship_abi_load();
+        printf("\ncheck_ship_abi_load ok\n\n");
         return 0;
     } catch (std::exception& e) {
         printf("error: %s\n", e.what());

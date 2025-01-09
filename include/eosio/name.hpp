@@ -4,7 +4,6 @@
 #include "check.hpp"
 #include "operators.hpp"
 #include "reflection.hpp"
-#include "murmur.hpp"
 #include <string>
 
 namespace eosio {
@@ -140,21 +139,12 @@ struct name {
    }
 };
 
-// TODO this seems weird and the name is misleading
-// and I don't think this has ever been truly constexpr
-inline constexpr uint64_t hash_name( std::string_view str ) {
-   auto r = try_string_to_name_strict(str);
-   if( r ) return r.value();
-   return  murmur64( str.data(), str.size() );
-}
-
 EOSIO_REFLECT(name, value);
 EOSIO_COMPARE(name);
 
 template <typename S>
 void from_json(name& obj, S& stream) {
-   auto r = stream.get_string();
-   obj = name(hash_name(r));
+   obj = name(string_to_name_strict(stream.get_string()));
 }
 
 template <typename S>
@@ -170,7 +160,6 @@ inline namespace literals {
    template <typename T, T... Str>
    inline constexpr name operator""_n() {
       return name(string_to_name_strict<Str...>()); }
-   inline constexpr name operator""_h(const char* s, size_t) { return name( hash_name(s) ); }
 #if defined(__clang__)
 # pragma clang diagnostic pop
 #endif
