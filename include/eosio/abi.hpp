@@ -14,6 +14,7 @@
 #include "time.hpp"
 #include "bytes.hpp"
 #include "asset.hpp"
+#include "murmur.hpp"
 
 namespace eosio {
 
@@ -169,8 +170,78 @@ struct abi_def {
    might_not_exist<std::vector<action_result_def>>            action_results{};
 };
 
+/* Allows for table names that are not Antelope names (longer than 13 chars, invalid chars, etc) when loading ABI from JSON. These
+ *  invalid names are transformed in to a valid Antelope name via a hash.
+ * This is intended strictly to ingest state_history's non-compliant ABI sent over the state_history websocket.
+ */
+struct abi_def_nonstrict_table_name : abi_def {};
+
 EOSIO_REFLECT(abi_def, version, types, structs, actions, tables, ricardian_clauses, error_messages, abi_extensions,
               variants, action_results);
+
+template <typename S>
+void hashed_name_for_name_from_json(name& nm, S& stream) {
+   const auto s = stream.get_string();
+   const auto n = try_string_to_name_strict(s);
+   if(n)
+      nm = name(n.value());
+   else
+      nm = name(murmur64(s.data(), s.size()));
+}
+
+template <typename T, typename S>
+void hashed_name_for_name_from_json(T&, S&) {
+   check( false, "should be unreachable" );
+}
+
+template <typename S>
+void table_def_array_nonstrict_name_from_json(std::vector<table_def>& tbl_defs, S& stream) {
+   stream.get_start_array();
+   while (true) {
+      auto t = stream.peek_token();
+      if (t.get().type == json_token_type::type_end_array)
+         break;
+      auto& tbl_def = tbl_defs.emplace_back();
+      from_json_object(stream, [&](std::string_view key) {
+         bool found = false;
+         eosio::for_each_field<table_def>([&](std::string_view member_name, auto member) {
+            if (!found && key == member_name) {
+               if (member_name == "name")
+                  hashed_name_for_name_from_json(member(&tbl_def), stream);
+               else
+                  from_json(member(&tbl_def), stream);
+               found = true;
+            }
+         });
+         if (!found)
+            from_json_skip_value(stream);
+      });
+   }
+   stream.get_end_array();
+}
+
+template <typename T, typename S>
+void table_def_array_nonstrict_name_from_json(T&, S&) {
+   check( false, "should be unreachable" );
+}
+
+template <typename S>
+void from_json(abi_def_nonstrict_table_name& obj, S& stream) {
+   from_json_object(stream, [&](std::string_view key) {
+      bool found = false;
+      eosio::for_each_field<abi_def_nonstrict_table_name>([&](std::string_view member_name, auto member) {
+         if (!found && key == member_name) {
+            if (member_name == "tables")
+               table_def_array_nonstrict_name_from_json(member(&obj), stream);
+            else
+               from_json(member(&obj), stream);
+            found = true;
+         }
+      });
+      if (!found)
+         from_json_skip_value(stream);
+   });
+}
 
 struct abi_type;
 
