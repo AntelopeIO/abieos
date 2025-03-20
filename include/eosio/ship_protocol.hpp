@@ -658,7 +658,7 @@ namespace eosio { namespace ship_protocol {
                max_authority_depth, max_action_return_value_size,
                max_sync_call_depth, max_sync_call_data_size)
 
-   using chain_config = std::variant<chain_config_v0, chain_config_v2>;
+   using chain_config = std::variant<chain_config_v0, chain_config_v1, chain_config_v2>;
 
    struct wasm_config_v0 {
       uint32_t max_mutable_global_bytes = {};
