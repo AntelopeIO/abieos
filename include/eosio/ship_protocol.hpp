@@ -298,7 +298,7 @@ namespace eosio { namespace ship_protocol {
       std::optional<std::string>    except                    = {};
       std::optional<uint64_t>       error_code                = {};
       eosio::input_stream           return_value              = {};
-      std::optional<std::vector<sync_call_trace>> call_traces = {};
+      std::vector<sync_call_trace>  call_traces               = {};
    };
 
    EOSIO_REFLECT(action_trace_v2, action_ordinal, creator_action_ordinal, receipt,

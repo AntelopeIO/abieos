@@ -194,7 +194,7 @@ extern const char* const state_history_plugin_abi = R"({
               { "name": "except", "type": "string?" },
               { "name": "error_code", "type": "uint64?" },
               { "name": "return_value", "type": "bytes"},
-              { "name": "call_traces", "type": "sync_call_trace[]?"}
+              { "name": "call_traces", "type": "sync_call_trace[]"}
             ]
         },
         {
