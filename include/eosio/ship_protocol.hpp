@@ -266,7 +266,46 @@ namespace eosio { namespace ship_protocol {
    EOSIO_REFLECT(action_trace_v1, action_ordinal, creator_action_ordinal, receipt, receiver, act, context_free, elapsed,
                  console, account_ram_deltas, except, error_code, return_value)
 
-   using action_trace = std::variant<action_trace_v0, action_trace_v1>;
+   struct sync_call_trace {
+      eosio::varuint32             ordinal;
+      eosio::varuint32             sender_ordinal;
+      eosio::name                  sender;
+      eosio::name                  receiver;
+      uint64_t                     flags;
+      eosio::input_stream          data;
+      int64_t                      elapsed;
+      std::string                  console;
+      std::optional<std::string>   except;
+      std::optional<uint64_t>      error_code;
+      int64_t                      return_value_size_or_error_id;
+      eosio::input_stream          return_value;
+   };
+
+   EOSIO_REFLECT(sync_call_trace, ordinal, sender_ordinal, sender, receiver,
+                 flags, data, elapsed, console, except, error_code,
+                 return_value_size_or_error_id, return_value)
+
+   struct action_trace_v2 {
+      eosio::varuint32              action_ordinal            = {};
+      eosio::varuint32              creator_action_ordinal    = {};
+      std::optional<action_receipt> receipt                   = {};
+      eosio::name                   receiver                  = {};
+      action                        act                       = {};
+      bool                          context_free              = {};
+      int64_t                       elapsed                   = {};
+      std::string                   console                   = {};
+      std::vector<account_delta>    account_ram_deltas        = {};
+      std::optional<std::string>    except                    = {};
+      std::optional<uint64_t>       error_code                = {};
+      eosio::input_stream           return_value              = {};
+      std::optional<std::vector<sync_call_trace>> call_traces = {};
+   };
+
+   EOSIO_REFLECT(action_trace_v2, action_ordinal, creator_action_ordinal, receipt,
+                 receiver, act, context_free, elapsed, console, account_ram_deltas,
+                 except, error_code, return_value, call_traces)
+
+   using action_trace = std::variant<action_trace_v0, action_trace_v1, action_trace_v2>;
 
    struct partial_transaction_v0 {
       eosio::time_point_sec            expiration             = {};
