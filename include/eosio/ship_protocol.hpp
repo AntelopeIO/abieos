@@ -267,18 +267,18 @@ namespace eosio { namespace ship_protocol {
                  console, account_ram_deltas, except, error_code, return_value)
 
    struct sync_call_trace {
-      eosio::varuint32             ordinal;
-      eosio::varuint32             sender_ordinal;
-      eosio::name                  sender;
-      eosio::name                  receiver;
-      uint64_t                     flags;
-      eosio::input_stream          data;
-      int64_t                      elapsed;
-      std::string                  console;
-      std::optional<std::string>   except;
-      std::optional<uint64_t>      error_code;
-      int64_t                      return_value_size_or_error_id;
-      eosio::input_stream          return_value;
+      eosio::varuint32             ordinal                       = {};
+      eosio::varuint32             sender_ordinal                = {};
+      eosio::name                  sender                        = {};
+      eosio::name                  receiver                      = {};
+      uint64_t                     flags                         = {};
+      eosio::input_stream          data                          = {};
+      int64_t                      elapsed                       = {};
+      std::string                  console                       = {};
+      std::optional<std::string>   except                        = {};
+      std::optional<uint64_t>      error_code                    = {};
+      int64_t                      return_value_size_or_error_id = {};
+      eosio::input_stream          return_value                  = {};
    };
 
    EOSIO_REFLECT(sync_call_trace, ordinal, sender_ordinal, sender, receiver,
