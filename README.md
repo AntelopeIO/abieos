@@ -2,7 +2,7 @@
 
 Binary <> JSON conversion using ABIs. Compatible with languages which can interface to C; see [src/abieos.h](src/abieos.h).
 
-Alpha release. Feedback requested.
+abieos utilizes a rolling release model: the `main` branch contains the latest fully supported version.
 
 ## Packing transactions
 
@@ -54,14 +54,7 @@ Example transaction data for `abieos_json_to_bin`:
 }
 ```
 
-## Ubuntu 16.04 with gcc 8.1.0
-
-* Install these. You may have to build them yourself from source or find a PPA. Make them the default.
-  * gcc 8.1.0
-  * cmake 3.11.3
-* `sudo apt install libboost-dev libboost-date-time-dev`
-* remove this from CMakeLists.txt (2 places): `-fsanitize=address,undefined`
-
+## Building & Testing
 ```
 mkdir build
 cd build
