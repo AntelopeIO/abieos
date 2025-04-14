@@ -54,6 +54,15 @@ Example transaction data for `abieos_json_to_bin`:
 }
 ```
 
+## Building & Testing
+```
+mkdir build
+cd build
+cmake ..
+make
+./test
+```
+
 ## License
 
 [MIT](./LICENSE)
