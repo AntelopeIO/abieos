@@ -231,6 +231,27 @@ namespace eosio { namespace ship_protocol {
    EOSIO_REFLECT(account_delta, account, delta)
    EOSIO_COMPARE(account_delta);
 
+   struct call_trace_v0 {
+      eosio::varuint32              call_ordinal     = {};
+      eosio::varuint32              sender_ordinal   = {};
+      eosio::name                   receiver         = {};
+      bool                          read_only        = {};
+      eosio::input_stream           data             = {};
+      int64_t                       elapsed          = {};
+      std::string                   console          = {};
+      std::vector<eosio::varuint32> console_markers  = {};
+      std::optional<std::string>    except           = {};
+      std::optional<uint64_t>       error_code       = {};
+      int64_t                       error_id         = {};
+      eosio::input_stream           return_value     = {};
+   };
+
+   EOSIO_REFLECT(call_trace_v0, call_ordinal, sender_ordinal, receiver,
+                 read_only, data, elapsed, console, console_markers, except,
+                 error_code, error_id, return_value)
+
+   using call_trace = std::variant<call_trace_v0>;
+
    struct action_trace_v0 {
       eosio::varuint32              action_ordinal         = {};
       eosio::varuint32              creator_action_ordinal = {};
@@ -266,24 +287,6 @@ namespace eosio { namespace ship_protocol {
    EOSIO_REFLECT(action_trace_v1, action_ordinal, creator_action_ordinal, receipt, receiver, act, context_free, elapsed,
                  console, account_ram_deltas, except, error_code, return_value)
 
-   struct sync_call_trace {
-      eosio::varuint32             ordinal                       = {};
-      eosio::varuint32             sender_ordinal                = {};
-      eosio::name                  sender                        = {};
-      eosio::name                  receiver                      = {};
-      uint64_t                     flags                         = {};
-      eosio::input_stream          data                          = {};
-      int64_t                      elapsed                       = {};
-      std::string                  console                       = {};
-      std::optional<std::string>   except                        = {};
-      std::optional<uint64_t>      error_code                    = {};
-      int64_t                      return_value_size_or_error_id = {};
-      eosio::input_stream          return_value                  = {};
-   };
-
-   EOSIO_REFLECT(sync_call_trace, ordinal, sender_ordinal, sender, receiver,
-                 flags, data, elapsed, console, except, error_code,
-                 return_value_size_or_error_id, return_value)
 
    struct action_trace_v2 {
       eosio::varuint32              action_ordinal            = {};
@@ -298,12 +301,13 @@ namespace eosio { namespace ship_protocol {
       std::optional<std::string>    except                    = {};
       std::optional<uint64_t>       error_code                = {};
       eosio::input_stream           return_value              = {};
-      std::vector<sync_call_trace>  call_traces               = {};
+      std::vector<call_trace>       call_traces               = {};
+      std::vector<eosio::varuint32> console_markers           = {};
    };
 
    EOSIO_REFLECT(action_trace_v2, action_ordinal, creator_action_ordinal, receipt,
                  receiver, act, context_free, elapsed, console, account_ram_deltas,
-                 except, error_code, return_value, call_traces)
+                 except, error_code, return_value, call_traces, console_markers)
 
    using action_trace = std::variant<action_trace_v0, action_trace_v1, action_trace_v2>;
 
