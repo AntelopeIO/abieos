@@ -19,7 +19,7 @@ namespace eosio {
 
 /**
  *  Variable Length Unsigned Integer. This provides more efficient serialization of 32-bit unsigned int.
- *  It serialuzes a 32-bit unsigned integer in as few bytes as possible
+ *  It serializes a 32-bit unsigned integer in as few bytes as possible
  *  `varuint32` is unsigned and uses [VLQ or Base-128 encoding](https://en.wikipedia.org/wiki/Variable-length_quantity)
  *
  *  @ingroup varint
