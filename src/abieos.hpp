@@ -18,6 +18,7 @@
 #include <eosio/fixed_bytes.hpp>
 #include <eosio/float.hpp>
 #include <eosio/varint.hpp>
+#include <eosio/bitset.hpp>
 
 #ifdef __eosio_cdt__
 #include <cwchar>

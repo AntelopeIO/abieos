@@ -44,6 +44,8 @@ enum class from_json_error {
    unexpected_field,
    number_out_of_range,
    from_json_no_pair,
+   incorrect_bitset_prefix,
+   unexpected_character_in_bitset,
 
    // These are from rapidjson:
    document_empty,
@@ -99,6 +101,8 @@ constexpr inline std::string_view convert_json_error(from_json_error e) {
             case from_json_error::unexpected_field:                    return "Unexpected field";
             case from_json_error::number_out_of_range:                 return "number is out of range";
             case from_json_error::from_json_no_pair:                   return "from_json does not support std::pair";
+            case from_json_error::incorrect_bitset_prefix:             return "incorrect bitset prefix, expected: 0b";
+            case from_json_error::unexpected_character_in_bitset:      return "unexpected character in bitset";
 
             case from_json_error::document_empty:                      return "The document is empty";
             case from_json_error::document_root_not_singular:          return "The document root must not follow by other values";
