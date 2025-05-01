@@ -87,8 +87,6 @@ struct bitset {
    size_type   m_num_bits;
 };
 
-//EOSIO_REFLECT(bitset, m_bits, m_num_bits);
-
 constexpr const char* get_type_name(bitset*) { return "bitset"; }
 
 // binary representation
@@ -96,6 +94,7 @@ constexpr const char* get_type_name(bitset*) { return "bitset"; }
 // The bitset first encodes the number of bits it contains as a varint, then encodes
 // (size+8-1)/8 bytes into the stream. The first byte represents bits 0-7, the next 8-15,
 // and so on; i.e. LSB first.
+// Within a byte, the least significant bit stores the smaller bitset index.
 // Unused bits should be written as 0.
 //
 // This matches the storage scheme of bitset above
