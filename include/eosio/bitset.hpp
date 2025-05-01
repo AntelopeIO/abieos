@@ -75,13 +75,8 @@ struct bitset {
       return extra_bits == 0 || (m_bits.back() & ~((uint8_t(1) << extra_bits) - 1)) == 0;
    }
 
-   friend auto operator<=>(const bitset& a, const bitset& b) {
-      return std::tie(a.m_num_bits, a.m_bits) <=> std::tie(b.m_num_bits, b.m_bits);
-   }
-
-   friend bool operator==(const bitset& a, const bitset& b)  {
-      return std::tie(a.m_num_bits, a.m_bits) == std::tie(b.m_num_bits, b.m_bits);
-   }
+   friend auto operator<=>(const bitset& a, const bitset& b) = default;
+   friend bool operator==(const bitset& a, const bitset& b) = default;
 
    uint8_t& byte(size_t i) {
       assert(i < m_bits.size());
@@ -94,8 +89,8 @@ struct bitset {
    }
 
 private:
-   buffer_type m_bits;
-   size_type   m_num_bits{0};
+   size_type   m_num_bits{0}; // members order matters so that defaulted `operator<=>` matches `to_key` below.
+   buffer_type m_bits;        // must be after `m_num_bits`
 };
 
 constexpr const char* get_type_name(bitset*) { return "bitset"; }
