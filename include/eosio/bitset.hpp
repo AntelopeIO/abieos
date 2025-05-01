@@ -44,11 +44,6 @@ struct bitset {
       zero_unused_bits();
    }
 
-   void clear() {
-      for (auto& byte : m_bits)
-         byte = 0;
-   }
-
    void set(size_type pos) {
       assert(pos < m_num_bits);
       m_bits[block_index(pos)] |= bit_mask(pos);
@@ -57,6 +52,11 @@ struct bitset {
    bool operator[](size_type pos) const {
       assert(pos < m_num_bits);
       return !!(m_bits[block_index(pos)] & bit_mask(pos));
+   }
+
+   void zero_all_bits() {
+      for (auto& byte : m_bits)
+         byte = 0;
    }
 
    void zero_unused_bits() {
@@ -152,7 +152,7 @@ void from_json(bitset& obj, S& stream) {
    auto str = stream.get_string();
    check(str.starts_with("0b"), convert_json_error(from_json_error::incorrect_bitset_prefix));
    auto num_chars = str.size();
-   obj.clear();                      // reset all existing bytes to 0
+   obj.zero_all_bits();                      // reset all existing bytes to 0
    obj.resize(num_chars - 2);        // `num_chars - 2` is number of bits. if size greater, new bytes will be 0 as well
    
    for (size_t i=2; i<num_chars; ++i) {
