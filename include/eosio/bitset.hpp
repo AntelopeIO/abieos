@@ -95,7 +95,7 @@ struct bitset {
 
 private:
    buffer_type m_bits;
-   size_type   m_num_bits;
+   size_type   m_num_bits{0};
 };
 
 constexpr const char* get_type_name(bitset*) { return "bitset"; }
