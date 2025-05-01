@@ -96,7 +96,7 @@ constexpr const char* get_type_name(bitset*) { return "bitset"; }
 // ---------------------------------------------------------------------------------------
 template <typename S>
 void from_bin(bitset& obj, S& stream) {
-   varuint32_from_bin(obj.size(), stream);
+   varuint32_from_bin(obj.m_num_bits, stream);
    if (obj.size() == 0) {
       obj.m_bits.clear();
    } else {
@@ -160,7 +160,7 @@ void to_json(const bitset& obj, S& stream) {
    if (obj.size() > 0) {
       // write bits in decreasing order N to 0, high bitset indexes come first in the JSON representation
       for (auto i = obj.size(); i-- > 0 ;)
-         stream.write(obj[i] ? '1' : '0', stream);
+         stream.write(obj[i] ? '1' : '0');
    }
    stream.write('"');
 }
