@@ -123,12 +123,21 @@ const char testAbi[] = R"({
                     "type": "int8"
                 }
             ]
+        },
+        {
+            "name": "s7",
+            "fields": [
+                {
+                    "name": "bs",
+                    "type": "bitset"
+                }
+            ]
         }
     ],
     "variants": [
         {
             "name": "v1",
-            "types": ["int8","s1","s2"]
+            "types": ["int8","s1","s2","s7"]
         }
     ]
 })";
@@ -1237,6 +1246,15 @@ void check_types() {
 
     // check uint8[][][]
     check_type(context, 0, "uint8[][][]", R"([[[1,2,3],[4,5,6]],[[7,8,9],[]]])");
+
+    // `bitset` checks
+    // ---------------
+    check_type(context, 0, "bitset", R"("0b")");
+    check_type(context, 0, "bitset", R"("0b0")");
+    check_type(context, 0, "bitset", R"("0b11")");
+    check_type(context, 0, "bitset", R"("0b011")");
+    check_type(context, 0, "bitset", R"("0b110001011")");
+
 
     abieos_destroy(context);
 }
