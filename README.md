@@ -60,7 +60,7 @@ mkdir build
 cd build
 cmake ..
 make
-./test_abieos
+./ctest
 ```
 
 ## License
