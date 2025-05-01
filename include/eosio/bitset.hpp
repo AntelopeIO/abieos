@@ -83,6 +83,17 @@ struct bitset {
       return std::tie(a.m_num_bits, a.m_bits) == std::tie(b.m_num_bits, b.m_bits);
    }
 
+   uint8_t& byte(size_t i) {
+      assert(i < m_bits.size());
+      return m_bits[i];
+   }
+
+   const uint8_t& byte(size_t i) const {
+      assert(i < m_bits.size());
+      return m_bits[i];
+   }
+
+private:
    buffer_type m_bits;
    size_type   m_num_bits;
 };
@@ -101,15 +112,13 @@ constexpr const char* get_type_name(bitset*) { return "bitset"; }
 // ---------------------------------------------------------------------------------------
 template <typename S>
 void from_bin(bitset& obj, S& stream) {
-   varuint32_from_bin(obj.m_num_bits, stream);
-   if (obj.size() == 0) {
-      obj.m_bits.clear();
-   } else {
+   uint32_t num_bits = 0;
+   varuint32_from_bin(num_bits, stream);
+   obj.resize(num_bits);
+   if (num_bits > 0) {
       auto num_blocks = bitset::calc_num_blocks(obj.size());
-      assert(num_blocks >= 1);
-      obj.m_bits.resize(num_blocks);
       for (size_t i=0; i<num_blocks; ++i) 
-         from_bin(obj.m_bits[i], stream);
+         from_bin(obj.byte(i), stream);
       obj.zero_unused_bits();
       assert(obj.unused_bits_zeroed());
    }
@@ -123,7 +132,7 @@ void to_bin(const bitset& obj, S& stream) {
       assert(num_blocks >= 1);
 
       for (size_t i=0; i<num_blocks; ++i)
-         to_bin(obj.m_bits[i], stream);
+         to_bin(obj.byte(i), stream);
    }
 }
 
@@ -174,9 +183,11 @@ void to_json(const bitset& obj, S& stream) {
 
 template <typename S>
 void to_key(const bitset& obj, S& stream) {
+   assert(obj.unused_bits_zeroed());
    to_key(obj.size(), stream);
-   for (auto byte : obj.m_bits)
-      to_key_optional(&byte, stream);
+   auto num_blocks = bitset::calc_num_blocks(obj.size());
+   for (size_t i=0; i<num_blocks; ++i)
+      to_key_optional(&obj.byte(i), stream);
    to_key_optional((const uint8_t*)nullptr, stream);
 }
 
