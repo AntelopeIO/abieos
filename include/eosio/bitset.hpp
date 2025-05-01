@@ -22,7 +22,7 @@ namespace eosio {
 // - least significant bit of byte 0 is bit 0 of bitset.
 // - unused bits must be zero.
 // ---------------------------------------------------------------------------------
-struct dynamic_bitset {
+struct bitset {
    using buffer_type                         = std::vector<uint8_t>;
    using size_type                           = uint32_t;
    static constexpr size_type bits_per_block = 8;
@@ -69,11 +69,11 @@ struct dynamic_bitset {
          m_bits.back() &= (uint8_t(1) << extra_bits) - 1;
    }
 
-   friend auto operator<=>(const dynamic_bitset& a, const dynamic_bitset& b) {
+   friend auto operator<=>(const bitset& a, const bitset& b) {
       return std::tie(a.m_num_bits, a.m_bits) <=> std::tie(b.m_num_bits, b.m_bits);
    }
 
-   friend bool operator==(const dynamic_bitset& a, const dynamic_bitset& b)  {
+   friend bool operator==(const bitset& a, const bitset& b)  {
       return std::tie(a.m_num_bits, a.m_bits) == std::tie(b.m_num_bits, b.m_bits);
    }
 
@@ -81,9 +81,9 @@ struct dynamic_bitset {
    size_type   m_num_bits;
 };
 
-EOSIO_REFLECT(dynamic_bitset, m_bits, m_num_bits);
+//EOSIO_REFLECT(bitset, m_bits, m_num_bits);
 
-inline constexpr const char* get_type4_name(dynamic_bitset*) { return "bitset"; }
+constexpr const char* get_type_name(bitset*) { return "bitset"; }
 
 // binary representation
 // ---------------------
@@ -92,15 +92,15 @@ inline constexpr const char* get_type4_name(dynamic_bitset*) { return "bitset"; 
 // and so on; i.e. LSB first.
 // Unused bits should be written as 0.
 //
-// This matches the storage scheme of dynamic_bitset above
+// This matches the storage scheme of bitset above
 // ---------------------------------------------------------------------------------------
 template <typename S>
-void from_bin(dynamic_bitset& obj, S& stream) {
+void from_bin(bitset& obj, S& stream) {
    varuint32_from_bin(obj.size(), stream);
    if (obj.size() == 0) {
       obj.m_bits.clear();
    } else {
-      auto num_blocks = dynamic_bitset::calc_num_blocks(obj.size());
+      auto num_blocks = bitset::calc_num_blocks(obj.size());
       assert(num_blocks >= 1);
       obj.m_bits.resize(num_blocks);
       for (size_t i=0; i<num_blocks; ++i) 
@@ -110,10 +110,10 @@ void from_bin(dynamic_bitset& obj, S& stream) {
 }
 
 template <typename S>
-void to_bin(const dynamic_bitset& obj, S& stream) {
+void to_bin(const bitset& obj, S& stream) {
    varuint32_to_bin(obj.size(), stream);
    if (obj.size() > 0) {
-      auto num_blocks = dynamic_bitset::calc_num_blocks(obj.size());
+      auto num_blocks = bitset::calc_num_blocks(obj.size());
       assert(num_blocks >= 1);
 
       for (size_t i=0; i<num_blocks; ++i)
@@ -133,7 +133,7 @@ void to_bin(const dynamic_bitset& obj, S& stream) {
 // ex: "0b110001011" -> 0x09 0x8b 0x01
 // ----------------------------------------------------------------------------------------
 template <typename S>
-void from_json(dynamic_bitset& obj, S& stream) {
+void from_json(bitset& obj, S& stream) {
    auto str = stream.get_string();
    check(str.starts_with("0b"), convert_json_error(from_json_error::incorrect_bitset_prefix));
    auto num_chars = str.size();
@@ -155,7 +155,7 @@ void from_json(dynamic_bitset& obj, S& stream) {
 }
 
 template <typename S>
-void to_json(const dynamic_bitset& obj, S& stream) {
+void to_json(const bitset& obj, S& stream) {
    stream.write("\"0b", 3);
    if (obj.size() > 0) {
       // write bits in decreasing order N to 0, high bitset indexes come first in the JSON representation
@@ -166,7 +166,7 @@ void to_json(const dynamic_bitset& obj, S& stream) {
 }
 
 template <typename S>
-void to_key(const dynamic_bitset& obj, S& stream) {
+void to_key(const bitset& obj, S& stream) {
    to_key(obj.size(), stream);
    for (auto byte : obj.m_bits)
       to_key_optional(&byte, stream);
