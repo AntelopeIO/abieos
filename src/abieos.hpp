@@ -386,6 +386,7 @@ using eosio::name;
 
 using eosio::varuint32;
 using eosio::varint32;
+using eosio::bitset;
 
 using eosio::time_point;
 using eosio::time_point_sec;
@@ -459,7 +460,7 @@ using extensions_type = std::vector<std::pair<uint16_t, bytes>>;
 using eosio::abi_def;
 
 ABIEOS_NODISCARD inline bool check_abi_version(const std::string& s, std::string& error) {
-    if (s.substr(0, 13) != "eosio::abi/1.")
+    if (!s.starts_with("eosio::abi/1."))
         return set_error(error, "unsupported abi version");
     return true;
 }
