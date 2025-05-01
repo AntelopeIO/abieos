@@ -1254,7 +1254,13 @@ void check_types() {
     check_type(context, 0, "bitset", R"("0b11")");
     check_type(context, 0, "bitset", R"("0b011")");
     check_type(context, 0, "bitset", R"("0b110001011")");
-
+    check_type(context, 0, "bitset", R"("0b1100010110110")");
+    check_type(context, 0, "bitset", R"("0b11000101101100011010101110")");
+    check_type(context, 0, "bitset", R"("0b11000101101100011010101110100110")");
+    check_type(context, 0, "bitset", R"("0b110001011011000110101011101001100110")");
+    check_type(context, 0, "bitset", R"("0b110001011011000110101011101001100110000110")");
+    check_type(context, 0, "bitset", R"("0b110001011011000110101011101001100110000110000000000000000001")");
+    check_type(context, 0, "bitset", R"("0b110001011011000110101011101001100110000111111111111111111110")");
 
     abieos_destroy(context);
 }
