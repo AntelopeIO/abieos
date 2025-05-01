@@ -81,6 +81,10 @@ struct dynamic_bitset {
    size_type   m_num_bits;
 };
 
+EOSIO_REFLECT(dynamic_bitset, m_bits, m_num_bits);
+
+inline constexpr const char* get_type4_name(dynamic_bitset*) { return "bitset"; }
+
 // binary representation
 // ---------------------
 // The bitset first encodes the number of bits it contains as a varint, then encodes
@@ -101,6 +105,7 @@ void from_bin(dynamic_bitset& obj, S& stream) {
       obj.m_bits.resize(num_blocks);
       for (size_t i=0; i<num_blocks; ++i) 
          from_bin(obj.m_bits[i], stream);
+      obj.zero_unused_bits();
    }
 }
 
@@ -132,15 +137,15 @@ void from_json(dynamic_bitset& obj, S& stream) {
    auto str = stream.get_string();
    check(str.starts_with("0b"), convert_json_error(from_json_error::incorrect_bitset_prefix));
    auto num_chars = str.size();
-   obj.clear();
-   obj.resize(num_chars - 2);
+   obj.clear();                      // reset all existing bytes to 0
+   obj.resize(num_chars - 2);        // `num_chars - 2` is number of bits. if size greater, new bytes will be 0 as well
    
    for (size_t i=2; i<num_chars; ++i) {
       switch(str[i]) {
       case '0':
-         break; // nothing to do, all bits initially 0
+         break;                      // nothing to do, all bits initially 0
       case '1':
-         obj.set(num_chars - i - 1);
+         obj.set(num_chars - i - 1); // high bitset indexes come first in the JSON representation
          break;
       default:
          eosio::detail::assert_or_throw(convert_json_error(from_json_error::unexpected_character_in_bitset));
@@ -153,7 +158,7 @@ template <typename S>
 void to_json(const dynamic_bitset& obj, S& stream) {
    stream.write("\"0b", 3);
    if (obj.size() > 0) {
-      // write bits in decreasing order N to 0
+      // write bits in decreasing order N to 0, high bitset indexes come first in the JSON representation
       for (auto i = obj.size(); i-- > 0 ;)
          stream.write(obj[i] ? '1' : '0', stream);
    }
