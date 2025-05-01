@@ -69,6 +69,12 @@ struct bitset {
          m_bits.back() &= (uint8_t(1) << extra_bits) - 1;
    }
 
+   bool unused_bits_zeroed() const {
+      // if != 0 this is the number of bits used in the last block
+      const size_type extra_bits = bit_index(size());
+      return extra_bits == 0 || (m_bits.back() & ~((uint8_t(1) << extra_bits) - 1)) == 0;
+   }
+
    friend auto operator<=>(const bitset& a, const bitset& b) {
       return std::tie(a.m_num_bits, a.m_bits) <=> std::tie(b.m_num_bits, b.m_bits);
    }
@@ -106,6 +112,7 @@ void from_bin(bitset& obj, S& stream) {
       for (size_t i=0; i<num_blocks; ++i) 
          from_bin(obj.m_bits[i], stream);
       obj.zero_unused_bits();
+      assert(obj.unused_bits_zeroed());
    }
 }
 
@@ -152,6 +159,7 @@ void from_json(bitset& obj, S& stream) {
          break;
       }
    }
+   assert(obj.unused_bits_zeroed());
 }
 
 template <typename S>
