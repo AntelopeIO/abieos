@@ -133,29 +133,26 @@ void to_bin(const bitset& obj, S& stream) {
 
 // JSON representation
 // -------------------
-// The bitset is represented as a string starting with 0b and then a sequence of 0 and 1
-// characters in decreasing bit order, so that first character represents bit N and the last
-// character bit 0.
+// The bitset is represented as a sequence of 0 and 1 characters in decreasing bit order,
+// so that first character represents bit N and the last character bit 0.
 // The number of 0 and 1 characters defines the size of the bitset.
-// Not starting with 0b or containing any non-0/1 characters in the string after the header
-// result in failure.
+// Any non-0/1 characters in the string result in failure.
 //
-// ex: "0b110001011" -> 0x09 0x8b 0x01
+// ex: "110001011" -> 0x09 0x8b 0x01
 // ----------------------------------------------------------------------------------------
 template <typename S>
 void from_json(bitset& obj, S& stream) {
    auto str = stream.get_string();
-   check(str.starts_with("0b"), convert_json_error(from_json_error::incorrect_bitset_prefix));
-   auto num_chars = str.size();
-   obj.zero_all_bits();                      // reset all existing bytes to 0
-   obj.resize(num_chars - 2);        // `num_chars - 2` is number of bits. if size greater, new bytes will be 0 as well
+   auto num_bits = str.size();
+   obj.zero_all_bits();              // reset all existing bytes to 0
+   obj.resize(num_bits);
    
-   for (size_t i=2; i<num_chars; ++i) {
+   for (size_t i=0; i<num_bits; ++i) {
       switch(str[i]) {
       case '0':
          break;                      // nothing to do, all bits initially 0
       case '1':
-         obj.set(num_chars - i - 1); // high bitset indexes come first in the JSON representation
+         obj.set(num_bits - i - 1);  // high bitset indexes come first in the JSON representation
          break;
       default:
          eosio::detail::assert_or_throw(convert_json_error(from_json_error::unexpected_character_in_bitset));
@@ -167,7 +164,7 @@ void from_json(bitset& obj, S& stream) {
 
 template <typename S>
 void to_json(const bitset& obj, S& stream) {
-   stream.write("\"0b", 3);
+   stream.write('"');
    if (obj.size() > 0) {
       // write bits in decreasing order N to 0, high bitset indexes come first in the JSON representation
       for (auto i = obj.size(); i-- > 0 ;)
