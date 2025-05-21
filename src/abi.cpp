@@ -240,7 +240,7 @@ void to_abi_def(abi_def& def, const std::string& name, const abi_type::variant& 
 }
 
 void eosio::convert(const eosio::abi& abi, eosio::abi_def& def) {
-   def.version = "eosio::abi/2.0";
+   def.version = "eosio::abi/1.0";            // leaving at 1.0 for compatibility with old software (eosjs2?)
    for(auto& [name, type] : abi.abi_types) {
       std::visit([&name = type.name, &def](const auto& t){ return to_abi_def(def, name, t); }, type._data);
    }
