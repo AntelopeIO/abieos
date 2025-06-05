@@ -18,6 +18,7 @@
 #include <eosio/fixed_bytes.hpp>
 #include <eosio/float.hpp>
 #include <eosio/varint.hpp>
+#include <eosio/bitset.hpp>
 
 #ifdef __eosio_cdt__
 #include <cwchar>
@@ -385,6 +386,7 @@ using eosio::name;
 
 using eosio::varuint32;
 using eosio::varint32;
+using eosio::bitset;
 
 using eosio::time_point;
 using eosio::time_point_sec;
@@ -458,7 +460,7 @@ using extensions_type = std::vector<std::pair<uint16_t, bytes>>;
 using eosio::abi_def;
 
 ABIEOS_NODISCARD inline bool check_abi_version(const std::string& s, std::string& error) {
-    if (s.substr(0, 13) != "eosio::abi/1.")
+   if (auto prefix = s.substr(0, 13); prefix != "eosio::abi/1." && prefix != "eosio::abi/2.")
         return set_error(error, "unsupported abi version");
     return true;
 }

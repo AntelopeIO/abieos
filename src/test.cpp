@@ -123,12 +123,21 @@ const char testAbi[] = R"({
                     "type": "int8"
                 }
             ]
+        },
+        {
+            "name": "s7",
+            "fields": [
+                {
+                    "name": "bs",
+                    "type": "bitset"
+                }
+            ]
         }
     ],
     "variants": [
         {
             "name": "v1",
-            "types": ["int8","s1","s2"]
+            "types": ["int8","s1","s2","s7"]
         }
     ]
 })";
@@ -1237,6 +1246,21 @@ void check_types() {
 
     // check uint8[][][]
     check_type(context, 0, "uint8[][][]", R"([[[1,2,3],[4,5,6]],[[7,8,9],[]]])");
+
+    // `bitset` checks
+    // ---------------
+    check_type(context, 0, "bitset", R"("")");
+    check_type(context, 0, "bitset", R"("0")");
+    check_type(context, 0, "bitset", R"("11")");
+    check_type(context, 0, "bitset", R"("011")");
+    check_type(context, 0, "bitset", R"("110001011")");
+    check_type(context, 0, "bitset", R"("1100010110110")");
+    check_type(context, 0, "bitset", R"("11000101101100011010101110")");
+    check_type(context, 0, "bitset", R"("11000101101100011010101110100110")");
+    check_type(context, 0, "bitset", R"("110001011011000110101011101001100110")");
+    check_type(context, 0, "bitset", R"("110001011011000110101011101001100110000110")");
+    check_type(context, 0, "bitset", R"("110001011011000110101011101001100110000110000000000000000001")");
+    check_type(context, 0, "bitset", R"("110001011011000110101011101001100110000111111111111111111110")");
 
     abieos_destroy(context);
 }
