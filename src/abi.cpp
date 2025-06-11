@@ -68,19 +68,26 @@ abi_type* get_type(std::map<std::string, abi_type>& abi_types, const std::string
             return &iter->second;
         } else if (ends_with(name, "]")) {
             // fixed_array
-            size_t size = 0;
-            if (auto idx = name.find_last_of('[');
-                idx != std::string::npos &&
-                std::from_chars(&name[idx + 1], &name[name.size() - 1], size).ec == std::errc{}) {
+            int size = 0;
+            if (auto idx = name.find_last_of('['); idx != std::string::npos) {
+                auto fc_res = std::from_chars(&name[idx + 1], &name[name.size() - 1], size);
+                check (fc_res.ec == std::errc{}, "Unexpected size specification for fixed array type");
+                check(fc_res.ptr == &name[name.size() - 1], "Unexpected size specification for fixed array type");
+                if (size <= 0) {
+                    eosio::check(size != 0, "Zero size fixed arrays not allowed");
+                    eosio::check(size > 0, "Negative size fixed arrays not allowed");
+                } else {
+                    eosio::check(name[idx + 1] != '0', "Leading zeros not allowed for fixed array lengrh specification");
+                }
                 auto element = get_type(abi_types, name.substr(0, idx), depth + 1);
                 // removed abi_type::array from invalid types for nesting, array of arrays should work
                 eosio::check(!holds_any_alternative<abi_type::optional, abi_type::extension>(element->_data),
                              "Invalid array nesting for type: " + name);
-                auto [iter, success] = abi_types.try_emplace(name, name, abi_type::fixed_array{element, size},
+                auto [iter, success] = abi_types.try_emplace(name, name, abi_type::fixed_array{element, size_t(size)},
                                                              &abi_serializer_for<::abieos::pseudo_fixed_array>);
                 return &iter->second;
             } else
-                eosio::check(false, eosio::convert_abi_error(abi_error::unknown_type));
+                eosio::check(false, "']' character found without matching '[' in type specification");
         } else if (ends_with(name, "$")) {
             auto base = get_type(abi_types, name.substr(0, name.size() - 1), depth + 1);
             eosio::check(

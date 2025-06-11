@@ -1048,6 +1048,17 @@ void check_types() {
     check_error(context, "array ([]) may not contain binary extensions ($)",
                 [&] { return abieos_json_to_bin(context, 0, "int8$[11]", ""); });
 
+    check_error(context, "Zero size fixed arrays not allowed",
+                [&] { return abieos_json_to_bin(context, 0, "int8[0]", ""); }, true);
+    check_error(context, "Negative size fixed arrays not allowed",
+                [&] { return abieos_json_to_bin(context, 0, "int8[-1]", ""); }, true);
+    check_error(context, "Unexpected size specification for fixed array type",
+                [&] { return abieos_json_to_bin(context, 0, "int8[0x5]", ""); }, true);
+    check_error(context, "Unexpected size specification for fixed array type",
+                [&] { return abieos_json_to_bin(context, 0, "int8[+5]", ""); }, true);
+    check_error(context, "Leading zeros not allowed for fixed array lengrh specification",
+                [&] { return abieos_json_to_bin(context, 0, "int8[010]", ""); }, true);
+
     check_error(context, "binary extensions ($) may not contain binary extensions ($)",
                 [&] { return abieos_json_to_bin(context, 0, "int8$$", ""); });
     check_error(context, "unknown type \"fee\"", [&] { return abieos_json_to_bin(context, 0, "fee", ""); });
