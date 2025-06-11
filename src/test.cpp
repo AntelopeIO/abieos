@@ -1048,6 +1048,8 @@ void check_types() {
     check_error(context, "array ([]) may not contain binary extensions ($)",
                 [&] { return abieos_json_to_bin(context, 0, "int8$[11]", ""); });
 
+    check_error(context, "']' character found without matching '[' in type specification",
+                [&] { return abieos_json_to_bin(context, 0, "int80]", ""); }, true);
     check_error(context, "Zero size fixed arrays not allowed",
                 [&] { return abieos_json_to_bin(context, 0, "int8[0]", ""); }, true);
     check_error(context, "Negative size fixed arrays not allowed",
