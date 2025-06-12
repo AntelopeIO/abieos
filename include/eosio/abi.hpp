@@ -206,8 +206,7 @@ struct abi_type {
       std::vector<abi_field> fields;
    };
    using variant = std::vector<abi_field>;
-   std::variant<builtin, const alias_def*, const struct_def*, const variant_def*, alias, optional, extension, array,
-                fixed_array, struct_, variant>
+   std::variant<builtin, const alias_def*, const struct_def*, const variant_def*, alias, optional, extension, array, struct_, variant, fixed_array>
                          _data;
    const abi_serializer* ser = nullptr;
 

@@ -70,9 +70,10 @@ abi_type* get_type(std::map<std::string, abi_type>& abi_types, const std::string
             // fixed_array
             int size = 0;
             if (auto idx = name.find_last_of('['); idx != std::string::npos) {
-                auto fc_res = std::from_chars(&name[idx + 1], &name[name.size() - 1], size);
+                const char* last = &name[name.size() - 1];
+                auto fc_res = std::from_chars(&name[idx + 1], last, size);
                 check (fc_res.ec == std::errc{}, "Unexpected size specification for fixed array type");
-                check(fc_res.ptr == &name[name.size() - 1], "Unexpected size specification for fixed array type");
+                check(fc_res.ptr == last, "Unexpected size specification for fixed array type");
                 if (size <= 0) {
                     eosio::check(size != 0, "Zero size fixed arrays not allowed");
                     eosio::check(size > 0, "Negative size fixed arrays not allowed");
