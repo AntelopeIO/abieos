@@ -1,8 +1,8 @@
 #pragma once
 
 #include <cmath>
+#include <charconv>
 #include "for_each_field.hpp"
-#include "fpconv.h"
 #include "stream.hpp"
 #include "types.hpp"
 #include <limits>
@@ -150,11 +150,13 @@ void fp_to_json(double value, S& stream) {
    } else if (std::isnan(value)) {
       stream.write("\"NaN\"", 5);
    } else {
-      small_buffer<25> b; // fpconv_dtoa generates at most 25 characters
-      int              n = fpconv_dtoa(value, b.pos);
-      check( n > 0, convert_stream_error(stream_error::float_error) );
-      b.pos += n;
-      stream.write(b.data, b.pos - b.data);
+      constexpr size_t buf_sz = 25;
+      small_buffer<buf_sz+1> b; // fpconv_dtoa generates at most 25 characters
+      auto r = std::to_chars(&b.data[0], &b.data[buf_sz], value, std::chars_format::fixed);
+      if (r.ec != std::errc())
+         r = std::to_chars(&b.data[0], &b.data[buf_sz], value);
+      check( r.ec == std::errc(), convert_stream_error(stream_error::float_error) );
+      stream.write(b.data, r.ptr - b.data);
    }
 }
 
