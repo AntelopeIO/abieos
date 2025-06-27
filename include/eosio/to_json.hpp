@@ -130,7 +130,7 @@ template <typename T, typename S>
 void int_to_json(T value, S& stream) {
    // For older versions of libstdc++ (g++ version 9 and below) std::numeric_limits<__int128>::digits10 
    // would return 0 when compiling with -std=c++17 flag
-   const int num_digits = sizeof(T) == 16 ? 38 : std::numeric_limits<T>::digits10;
+   constexpr int num_digits = sizeof(T) == 16 ? 38 : std::numeric_limits<T>::digits10;
    small_buffer<num_digits + 4> b;
    if (sizeof(T) > 4)
       *b.pos++ = '"';
@@ -150,13 +150,12 @@ void fp_to_json(double value, S& stream) {
    } else if (std::isnan(value)) {
       stream.write("\"NaN\"", 5);
    } else {
-      constexpr size_t buf_sz = 25;
-      small_buffer<buf_sz+1> b; // fpconv_dtoa generates at most 25 characters
-      auto r = std::to_chars(&b.data[0], &b.data[buf_sz], value, std::chars_format::fixed);
+      std::array<char, 25> b;
+      auto r = std::to_chars(b.data(), b.data() + b.size(), value, std::chars_format::fixed);
       if (r.ec != std::errc())
-         r = std::to_chars(&b.data[0], &b.data[buf_sz], value);
+         r = std::to_chars(b.data(), b.data() + b.size(), value);
       check( r.ec == std::errc(), convert_stream_error(stream_error::float_error) );
-      stream.write(b.data, r.ptr - b.data);
+      stream.write(b.data(), r.ptr - b.data());
    }
 }
 
