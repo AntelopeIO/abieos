@@ -5,7 +5,7 @@ find_package(Threads)
 add_executable(name name.cpp)
 target_link_libraries(name abieos ${CMAKE_THREAD_LIBS_INIT})
 
-add_library(abieos_util STATIC ../src/abieos.cpp ../src/abi.cpp ../src/crypto.cpp ../include/eosio/fpconv.c)
+add_library(abieos_util STATIC ../src/abieos.cpp ../src/abi.cpp ../src/crypto.cpp)
 target_include_directories(abieos_util PUBLIC
         "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/../src"
         "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/../include"
