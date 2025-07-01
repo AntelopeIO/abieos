@@ -804,8 +804,8 @@ void check_types() {
     check_type(context, 0, "float64", R"(0.0)", "0");
     check_type(context, 0, "float64", R"(0.125)");
     check_type(context, 0, "float64", R"(-0.125)");
-    check_type(context, 0, "float64", R"(151115727451828646838272.0)", "151115727451828650000000");
-    check_type(context, 0, "float64", R"(-151115727451828646838272.0)", "-151115727451828650000000");
+    check_type(context, 0, "float64", R"(151115727451828646838272.0)", "151115727451828646838272");
+    check_type(context, 0, "float64", R"(-151115727451828646838272.0)", "-151115727451828646838272");
     check_type(context, 0, "float128", R"("00000000000000000000000000000000")");
     check_type(context, 0, "float128", R"("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF")");
     check_type(context, 0, "float128", R"("12345678ABCDEF12345678ABCDEF1234")");
