@@ -1,3 +1,4 @@
+#include <charconv>
 #include <eosio/abi.hpp>
 #include "abieos.hpp"
 
@@ -65,6 +66,29 @@ abi_type* get_type(std::map<std::string, abi_type>& abi_types, const std::string
             );
             auto [iter, success] = abi_types.try_emplace(name, name, abi_type::array{element}, &abi_serializer_for< ::abieos::pseudo_array>);
             return &iter->second;
+        } else if (ends_with(name, "]")) {
+            // fixed_array
+            int size = 0;
+            if (auto idx = name.find_last_of('['); idx != std::string::npos) {
+                const char* last = &name[name.size() - 1];
+                auto fc_res = std::from_chars(&name[idx + 1], last, size);
+                check (fc_res.ec == std::errc{}, "Unexpected size specification for fixed array type");
+                check(fc_res.ptr == last, "Unexpected size specification for fixed array type");
+                if (size <= 0) {
+                    eosio::check(size != 0, "Zero size fixed arrays not allowed");
+                    eosio::check(size > 0, "Negative size fixed arrays not allowed");
+                } else {
+                    eosio::check(name[idx + 1] != '0', "Leading zeros not allowed for fixed array lengrh specification");
+                }
+                auto element = get_type(abi_types, name.substr(0, idx), depth + 1);
+                // removed abi_type::array from invalid types for nesting, array of arrays should work
+                eosio::check(!holds_any_alternative<abi_type::optional, abi_type::extension>(element->_data),
+                             "Invalid array nesting for type: " + name);
+                auto [iter, success] = abi_types.try_emplace(name, name, abi_type::fixed_array{element, size_t(size)},
+                                                             &abi_serializer_for<::abieos::pseudo_fixed_array>);
+                return &iter->second;
+            } else
+                eosio::check(false, "']' character found without matching '[' in type specification");
         } else if (ends_with(name, "$")) {
             auto base = get_type(abi_types, name.substr(0, name.size() - 1), depth + 1);
             eosio::check(
@@ -204,6 +228,7 @@ void eosio::convert(const abi_def& abi, eosio::abi& c) {
 void to_abi_def(abi_def& def, const std::string& name, const abi_type::builtin&) {}
 void to_abi_def(abi_def& def, const std::string& name, const abi_type::optional&) {}
 void to_abi_def(abi_def& def, const std::string& name, const abi_type::array&) {}
+void to_abi_def(abi_def& def, const std::string& name, const abi_type::fixed_array&) {}
 void to_abi_def(abi_def& def, const std::string& name, const abi_type::extension&) {}
 
 template<typename T>
@@ -249,6 +274,7 @@ void eosio::convert(const eosio::abi& abi, eosio::abi_def& def) {
 const abi_serializer* const eosio::object_abi_serializer = &abi_serializer_for< ::abieos::pseudo_object>;
 const abi_serializer* const eosio::variant_abi_serializer = &abi_serializer_for< ::abieos::pseudo_variant>;
 const abi_serializer* const eosio::array_abi_serializer = &abi_serializer_for< ::abieos::pseudo_array>;
+const abi_serializer* const eosio::fixed_array_abi_serializer = &abi_serializer_for< ::abieos::pseudo_fixed_array>;
 const abi_serializer* const eosio::extension_abi_serializer = &abi_serializer_for< ::abieos::pseudo_extension>;
 const abi_serializer* const eosio::optional_abi_serializer = &abi_serializer_for< ::abieos::pseudo_optional>;
 
